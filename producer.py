@@ -17,21 +17,21 @@ producer = KafkaProducer(
 
 # Pydantic model for scene parameters
 class SceneParameters(BaseModel):
-    scene_id: str
-    parameter1: float
-    parameter2: float
-    parameter3: int
+    indicators: str
+    starting_cash: float
+    broker: str
+    commission: float
 
 # Endpoint to receive scene parameters and send to Kafka
 @app.post("/send_scene_parameters/", status_code=status.HTTP_202_ACCEPTED)
 async def send_scene_parameters(scene_params: SceneParameters):
     try:
-        # Construct message payload
-        message = {
-            "scene_id": scene_params.scene_id,
-            "parameter1": scene_params.parameter1,
-            "parameter2": scene_params.parameter2,
-            "parameter3": scene_params.parameter3
+        # Dummy JSON data 
+        dummy_json = {
+            "indicators": scene_params.indicators,
+            "starting_cash": scene_params.starting_cash,
+            "broker": scene_params.broker,
+            "commission": scene_params.commission
         }
 
         # Send message to Kafka topic 'scene_parameters'
@@ -39,7 +39,8 @@ async def send_scene_parameters(scene_params: SceneParameters):
         producer.flush()  # Ensure all messages are sent
         
         # Return success message to frontend
-        return {"message": "Scene parameters sent to Kafka successfully"}
+        return {"message": "Scene parameters sent to Kafka successfully", "data": dummy_json}
+
 
     except Exception as e:
         # Log the error (optional)
