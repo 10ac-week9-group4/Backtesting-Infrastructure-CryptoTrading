@@ -26,24 +26,24 @@ class SceneParameters(BaseModel):
 @app.post("/send_scene_parameters/", status_code=status.HTTP_202_ACCEPTED)
 async def send_scene_parameters(scene_params: SceneParameters):
     try:
-        # Dummy JSON data 
-        dummy_json = {
+        # Convert Pydantic model to dictionary
+        scene_data = {
             "indicators": scene_params.indicators,
             "starting_cash": scene_params.starting_cash,
             "broker": scene_params.broker,
             "commission": scene_params.commission
         }
-
+        
         # Send message to Kafka topic 'scene_parameters'
-        producer.send('scene_parameters', value=message)
+        producer.send('scene_parameters', value=scene_data
         producer.flush()  # Ensure all messages are sent
         
         # Return success message to frontend
-        return {"message": "Scene parameters sent to Kafka successfully", "data": dummy_json}
+        return {"message": "Scene parameters sent to Kafka successfully", "data":s cene_data}
 
 
     except Exception as e:
-        # Log the error (optional)
+        # Log the error 
         print(f"Error sending scene parameters to Kafka: {e}")
         # Raise HTTPException with 500 Internal Server Error status code
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error sending scene parameters to Kafka")
