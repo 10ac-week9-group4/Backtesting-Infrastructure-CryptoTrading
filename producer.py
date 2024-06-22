@@ -23,7 +23,7 @@ class SceneParameters(BaseModel):
     commission: float
 
 # Endpoint to receive scene parameters and send to Kafka
-@app.post("/send_scene_parameters/", status_code=status.HTTP_202_ACCEPTED)
+@app.post("/send_scene_parameters/", status_code=status.HTTP_201_CREATED)
 async def send_scene_parameters(scene_params: SceneParameters):
     try:
         # Convert Pydantic model to dictionary
@@ -39,7 +39,7 @@ async def send_scene_parameters(scene_params: SceneParameters):
         producer.flush()  # Ensure all messages are sent
         
         # Return success message to frontend
-        return {"message": "Scene parameters sent to Kafka successfully", "data":s cene_data}
+        return {"message": "Scene parameters sent to Kafka successfully", "data":scene_data}
 
 
     except Exception as e:
