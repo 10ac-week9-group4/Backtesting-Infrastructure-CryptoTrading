@@ -35,7 +35,7 @@ async def send_scene_parameters(scene_params: SceneParameters):
         }
         
         # Send message to Kafka topic 'scene_parameters'
-        producer.send('scene_parameters', value=scene_data
+        producer.send('scene_parameters', value=scene_data)
         producer.flush()  # Ensure all messages are sent
         
         # Return success message to frontend
