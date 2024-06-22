@@ -7,7 +7,7 @@ import json
 app = FastAPI()
 
 # Kafka broker URL
-KAFKA_BROKER_URL = "localhost:9092"  # Replace with your Kafka broker's address
+KAFKA_BROKER_URL = "localhost:9092" 
 
 # Create KafkaProducer instance
 producer = KafkaProducer(
