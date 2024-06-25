@@ -99,7 +99,7 @@ def get_existing_backtest_result(scene_id, session=None):
       'sharpe_ratio': existing_result.SharpeRatio,
       'return': existing_result.Return,
       'win_trade': existing_result.WinningTrades,
-      'loss_trade': existing_result.LossingTrades,
+      'loss_trade': existing_result.LosingTrades,
       'total_trade': existing_result.TradeCount,
       'start_portfolio': existing_result.StartPortfolio,
       'final_portfolio': existing_result.FinalPortfolio,
@@ -262,6 +262,7 @@ def main(strategy):
     scene_id = save_scene(scene_details, strategy_id)
 
     result = execute_single_backtest(scene_details, scene_id, session)
+    save_single_backtest_result(scene_id, result, session)
     all_results.append(result)
   return all_results
 
@@ -278,8 +279,8 @@ if __name__ == "__main__":
     "commission": 0.001,
     "indicator": "SmaCrossOver",
     "indicator_params_range": {
-      'pfast': [10],
-      'pslow': [30]
+      'pfast': [10, 40],
+      'pslow': [30, 60]
     }
   }
   main(strategy)
