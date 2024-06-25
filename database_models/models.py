@@ -1,6 +1,20 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Numeric, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Numeric, JSON, create_engine
+from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from .base import Base  # Assuming base.py contains the declarative base
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:billna1@localhost:5432/trading_data")
+
+# Function to initialize the database
+def init_db():
+  engine = create_engine(DATABASE_URL)
+  Base.metadata.create_all(engine)
+  return scoped_session(sessionmaker(bind=engine))
+
+# NB: init_db() must be called explicitly to initialize the database.
 
 class Dim_Date(Base):
   __tablename__ = 'dim_date'
@@ -79,6 +93,8 @@ class Fact_Backtests(Base):
   TradeCount = Column(Integer)
   WinningTrades = Column(Integer)
   LosingTrades = Column(Integer)
+  StartPortfolio = Column(Numeric(18, 4))
+  FinalPortfolio = Column(Numeric(18, 4))
 
 class Fact_StockPrices(Base):
   __tablename__ = 'fact_stock_prices'

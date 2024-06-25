@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from models import Base, Dim_Users, Dim_Assets
+from database_models import Base, Dim_Users, Dim_Assets
 
 
 @pytest.fixture(scope='module')

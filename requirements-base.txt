@@ -1,0 +1,10 @@
+SQLAlchemy
+psycopg2-binary
+alembic
+python-dotenv
+fastapi
+websockets
+coloredlogs
+confluent-kafka
+yfinance
+python-binance
