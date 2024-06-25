@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-from app import get_db
+from app.utils import get_user_by_username
 
 
 os.chdir("../")
@@ -79,38 +79,46 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
 
 @app.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    # In a real application, we fetch user data from your database
-    # For this example, we'll just hardcode a user
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    try:
+        # Query the database for the user
+        user = get_user_by_username(form_data.username)
+        username = user.UserName
+        # logger.info("User: %s", user.UserName)
+        
+        if not user:
+            raise HTTPException(status_code=400, detail="Incorrect username or password")
 
-    # **Important:**  Replace this with actual user retrieval logic
-    # user = None  # Fetch user from your database based on form_data.username
-    print("FORM DATA: ", form_data.password)
-    # Query the database for the user
-    user = db.query(Dim_Users).filter(Dim_Users.UserName == form_data.username).first()
-    logger.info("User: ", user)
+        # Ensure user data contains 'hashed_password'
+        hashed_password = user.PasswordHash
+        if not hashed_password:
+            logger.error("User data does not contain 'hashed_password'")
+            raise HTTPException(status_code=500, detail="Internal server error")
 
-    # user = {
-    #     "username": "doen",
-    #     "email": "doentest@gmail.com",
-    #     "hashed_password": "$2b$12$8dUj8h2tzXLvej8kHwYZrejTHLv6Zq5rKv34Nijo8cHGb7WLimiEm"
-    # }
+        # Verify password
+        if not pwd_context.verify(form_data.password, hashed_password):
+            raise HTTPException(status_code=400, detail="Incorrect username or password")
 
-    if not user:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    hashed_password = user.get("hashed_password")
-
-    # Verify password
-    if not pwd_context.verify(form_data.password, hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-
-    # Create and return JWT token
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.get("username")}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer", "username": user.get("username")}
-
+        # Create and return JWT token
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": username}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, 
+                "token_type": "bearer", 
+                "username": username, 
+                "statusCode": 200, 
+                "success": True, 
+                "message": "User logged in successfully"
+            }
+    
+    except HTTPException as http_ex:
+        # Re-raise HTTP exceptions (these are expected errors like incorrect username/password)
+        raise http_ex
+    except Exception as ex:
+        logger.error(f"Unexpected error during login: {ex}")
+        # Return a generic error message
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/register")
 async def register(user: User):
