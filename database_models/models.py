@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Numeric, JSON, create_engine
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Numeric, JSON, create_engine, DateTime, func
 from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from .base import Base  # Assuming base.py contains the declarative base
 
@@ -26,7 +26,7 @@ class Dim_Date(Base):
   Day = Column(Integer)
   # Relationships
   trades = relationship("Fact_Trades", backref="dim_date")
-  backtests = relationship("Fact_Backtests", backref="dim_date")
+  # backtests = relationship("Fact_Backtests", backref="dim_date")
   stock_prices = relationship("Fact_StockPrices", backref="dim_date")
   crypto_prices = relationship("Fact_CryptoPrices", backref="dim_date")
 
@@ -54,21 +54,27 @@ class Dim_Assets(Base):
 class Dim_Strategy(Base):
   __tablename__ = 'dim_strategy'
   StrategyID = Column(Integer, primary_key=True, autoincrement=True)
+  StrategyIdentifier = Column(String(100))
   StrategyName = Column(String(100))
   StrategyDescription = Column(String(255))
+  Indicator = Column(String(100))  # New column for the indicator
+  IndicatorParameterNames = Column(JSON)  # New column for storing parameter names as a JSON list
   # Relationships
   trades = relationship("Fact_Trades", backref="dim_strategy")
-  backtests = relationship("Fact_Backtests", backref="dim_strategy")
   scenes = relationship("Dim_Scene", backref="dim_strategy")
 
 class Dim_Scene(Base):
   __tablename__ = 'dim_scene'
   SceneID = Column(Integer, primary_key=True, autoincrement=True)
+  SceneKey = Column(String(100))
   Symbol = Column(String(10))
   StartDate = Column(Date)
   EndDate = Column(Date)
   StrategyID = Column(Integer, ForeignKey('dim_strategy.StrategyID'))
-  Parameters = Column(JSON)
+  Parameters = Column(JSON)  # Modified to store specific parameter values for the scene
+  # Relationships
+  backtests = relationship("Fact_Backtests", backref="dim_scene")
+
 
 class Fact_Trades(Base):
   __tablename__ = 'fact_trades'
@@ -84,12 +90,12 @@ class Fact_Trades(Base):
 class Fact_Backtests(Base):
   __tablename__ = 'fact_backtests'
   BacktestID = Column(Integer, primary_key=True, autoincrement=True)
-  DateKey = Column(Integer, ForeignKey('dim_date.DateKey'))
+  CreatedAt = Column(DateTime, default=func.now())  # Add this line to store the current timestamp
   UserID = Column(Integer, ForeignKey('dim_users.UserID'))
-  StrategyID = Column(Integer, ForeignKey('dim_strategy.StrategyID'))
+  Scene_ID = Column(Integer, ForeignKey('dim_scene.SceneID'))
   MaxDrawdown = Column(Numeric(18, 4))
   SharpeRatio = Column(Numeric(18, 4))
-  TotalReturn = Column(Numeric(18, 4))
+  Return = Column(Numeric(18, 4))
   TradeCount = Column(Integer)
   WinningTrades = Column(Integer)
   LosingTrades = Column(Integer)
