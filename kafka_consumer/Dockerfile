@@ -14,9 +14,10 @@ WORKDIR /app
 # RUN pip install -r requirements.txt --no-cache-dir
 
 # Copy your consumer script into the container
-COPY ./kafka_consumer.py /app/
+COPY ./kafka_consumer.py /app/kafka_consumer.py
 
 # Run the consumer script when the container starts
 # CMD ["python", "kafka_consumer_db_inserter.py"]
-CMD ["./scripts/wait-for-it.sh", "kafka:9092", "--", "ls", "*.py", "|", "entr", "-n", "-r", "python", "kafka_consumer.py"]
+CMD ["sh", "-c", "./scripts/wait-for-it.sh kafka:9092 -- ls *.py | entr -n -r python kafka_consumer.py"]
+
 # CMD ls *.py | entr -n -r python kafka_consumer.py

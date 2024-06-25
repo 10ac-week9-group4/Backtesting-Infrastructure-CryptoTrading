@@ -40,6 +40,25 @@ x-airflow-common:
     postgres:
       condition: service_healthy
 
+x-common-service:
+  &common-service
+  image: base-image-gold:latest
+  volumes:
+    - ./src/shared:/app/shared
+    - ./src/scripts:/app/scripts
+    - ./database_models:/app/database_models
+  depends_on:
+    - postgres
+    - kafka
+    - topic_creator
+  environment:
+    KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    POSTGRES_USER: postgres
+    POSTGRES_HOST: postgres
+    POSTGRES_DB: trading_data
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_PORT: 5432
+    DATABASE_URL: postgresql://postgres:billna1@postgres:5432/trading_data
 
 services:
   postgres:
@@ -277,48 +296,31 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
 
   api:
+    <<: *common-service
     build: ./api
     volumes:
       - ./api/app:/code/app
-      - ./src/shared:/code/shared
-    depends_on:
-      - kafka
     ports:
       - "8089:8000"
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
   kafka-consumer:
+    <<: *common-service
     build: ./kafka_consumer    # The Dockerfile is in this directory
     volumes:
-      - ./kafka_consumer:/app
-      - ./src/shared:/app/shared
-      - ./src/scripts:/app/scripts
-      - ./database_models:/app/database_models
+      - ./kafka_consumer/kafka_consumer.py:/app/kafka_consumer.py
     depends_on:
       - kafka
       - postgres
       - topic_creator
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      POSTGRES_USER: postgres
-      POSTGRES_HOST: postgres
-      POSTGRES_DB: trading_data
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_PORT: 5432
 
   database-service:
+    <<: *common-service
     build: ./database_service
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      DATABASE_URL: postgresql://postgres:billna1@postgres:5432/trading_data
     ports:
       - 8001:8001
     volumes:
-      - ./database_service:/app
-      - ./database_models:/app/database_models
+      - ./database_service/database_service.py:/app/database_service.py
       - ./alembic:/app/alembic
-      - ./src/shared:/app/shared
     depends_on:
       - postgres
 
@@ -330,6 +332,9 @@ services:
     restart: "no"  # Ensure it only runs once
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      TOPIC_NAMES: "stock_data, backtest_results, user_registrations"
+      PARTITIONS: 1
+      REPLICATION_FACTOR: 1
 
 
 volumes:
