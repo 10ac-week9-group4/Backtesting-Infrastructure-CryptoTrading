@@ -1,10 +1,15 @@
 import os
-os.chdir("../../")
+import sys
+#os.chdir("../../")
+sys.path.append('../../')
+
 
 from datetime import datetime
 from backtrader.analyzers import Returns,DrawDown,SharpeRatio,TradeAnalyzer
 import yfinance as yf
 import backtrader as bt
+from backtrader.feeds import PandasData
+
 
 from src.strategies import SmaCrossOver, SMA_RSI, SMA, TestStrategy
 
@@ -23,6 +28,24 @@ def prepare_and_run_backtest(
     cerebro = prepare_cerebro(asset,strategy,data_path,start_date,end_date,cash,commission)
     result = run_test(cerebro)
     return result
+
+def run_backtest(strategy_class, data):
+    cerebro = bt.Cerebro()
+    cerebro.addstrategy(strategy_class)
+    
+    # Use PandasData to load DataFrame directly
+    datafeed = PandasData(dataname=data)
+    cerebro.adddata(datafeed)
+    
+    cerebro.addanalyzer(Returns)
+    cerebro.addanalyzer(DrawDown)
+    cerebro.addanalyzer(SharpeRatio, riskfreerate=0.0)
+    
+    results = cerebro.run()
+    return results[0].analyzers.returns.get_analysis(), \
+           results[0].analyzers.drawdown.get_analysis(), \
+           results[0].analyzers.sharperatio.get_analysis()
+
 
 def prepare_cerebro(asset,strategy,data_path,start_date:str,end_date:str=datetime.now(),cash:int=100000,commission:float=0)->bt.Cerebro:
     cerebro = bt.Cerebro()
