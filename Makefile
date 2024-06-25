@@ -1,4 +1,4 @@
-.PHONY: run-dev down clean build up build-api build-pipeline run test test_db create_trading_database
+.PHONY: run-dev down clean build up build-pipeline run test test_db create_trading_database
 
 # Makefile for managing PostgreSQL users in Docker
 
@@ -35,9 +35,9 @@ run:
 run-dev:
 	fastapi dev api/main.py
 
-build-api:
-	docker compose build api
-	make up
+# build-api:
+# 	docker compose build api
+# 	make up
 
 build-pipeline:
 	docker compose build data-pipeline
