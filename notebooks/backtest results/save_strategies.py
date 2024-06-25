@@ -76,19 +76,31 @@ strategy = {
 
 
 
-
-def save_strategy(strategy_params, asset, start_date, end_date):
+def save_strategy(strategy_params):
   session = init_db()  # Initialize DB session
-  # Create and save the strategy
-  strategy = Dim_Strategy(
-    StrategyName=strategy_params['indicator'],
-    StrategyDescription=json.dumps(strategy_params),
-    Indicator=strategy_params['indicator'],
-    IndicatorParameterNames=json.dumps(list(strategy_params['indicator_params_range'].keys()))
-  )
-  session.add(strategy)
-  session.commit()
-  return strategy.StrategyID
+
+  # Serialize strategy parameters to create a unique identifier
+  serialized_params = json.dumps(strategy_params, sort_keys=True)
+  strategy_identifier = hashlib.sha256(serialized_params.encode()).hexdigest()
+
+  # Check if a strategy with this identifier already exists
+  existing_strategy = session.query(Dim_Strategy).filter_by(StrategyIdentifier=strategy_identifier).first()
+
+  if existing_strategy is None:
+    # If it does not exist, create and save the new strategy
+    strategy = Dim_Strategy(
+      StrategyIdentifier=strategy_identifier,
+      StrategyName=strategy_params['indicator'],
+      StrategyDescription=json.dumps(strategy_params),
+      Indicator=strategy_params['indicator'],
+      IndicatorParameterNames=json.dumps(list(strategy_params['indicator_params_range'].keys()))
+    )
+    session.add(strategy)
+    session.commit()
+    return strategy.StrategyID  # Return the new StrategyID
+  else:
+    # If it exists, return the existing StrategyID
+    return existing_strategy.StrategyID
 
 # backtest_result_examples = {
 #    'sharpe_ratio': -61.7130814514063, 
@@ -105,12 +117,12 @@ def save_strategy(strategy_params, asset, start_date, end_date):
 from datetime import datetime
 
 
-def save_single_backtest_result(strategy_id, backtest_result, session=None):
+def save_single_backtest_result(scene_id, backtest_result, session=None):
   if session is None:
     session = init_db()
   
   backtest = Fact_Backtests(
-    StrategyID=strategy_id,
+    Scene_ID=scene_id,
     MaxDrawdown=backtest_result['max_drawdown'],
     SharpeRatio=backtest_result['sharpe_ratio'],
     Return=backtest_result['return'],
@@ -135,15 +147,38 @@ def save_backtest_results(strategy_id, backtest_results):
 
 def save_scene(strategy_id, asset, start_date, end_date, parameters):
   session = init_db()
-  scene = Dim_Scene(
-    StrategyID=strategy_id,
-    Symbol=asset,
-    StartDate=start_date,
-    EndDate=end_date,
-    Parameters=json.dumps(parameters)
-  )
-  session.add(scene)
-  session.commit()
+
+  # Serialize parameters to generate a unique SceneKey
+  serialized_params = json.dumps({
+    "strategy_id": strategy_id,
+    "asset": asset,
+    "start_date": start_date,
+    "end_date": end_date,
+    "parameters": parameters
+  }, sort_keys=True)
+  
+  # Generate SceneKey using SHA256 hash
+  scene_key = hashlib.sha256(serialized_params.encode()).hexdigest()
+
+  # Check if a scene with the same SceneKey already exists
+  existing_scene = session.query(Dim_Scene).filter_by(SceneKey=scene_key).first()
+
+  if existing_scene is None:
+    # If no existing scene, save the new scene
+    scene = Dim_Scene(
+      SceneKey=scene_key,
+      StrategyID=strategy_id,
+      Symbol=asset,
+      StartDate=start_date,
+      EndDate=end_date,
+      Parameters=json.dumps(parameters)
+    )
+    session.add(scene)
+    session.commit()
+    return scene.SceneID  # Return the SceneID after saving the scene
+  else:
+    # If a scene with the same SceneKey exists, return its SceneID (or handle as needed)
+    return existing_scene.SceneID
 
 # Example usage
 # strategy_id = save_strategy(strategy_params=strategy, asset="GOOGL", start_date="2022-12-19", end_date="2023-02-19")
@@ -159,17 +194,18 @@ def main(strategy):
   session = init_db()
 
   # Save the strategy and get its ID
-  strategy_id = save_strategy(strategy_params=strategy, asset="GOOGL", start_date=strategy["start_date"], end_date=strategy["end_date"])
+  strategy_id = save_strategy(strategy_params=strategy)
   
+  # Save the scene
+  scene_id = save_scene(strategy_id=strategy_id, asset="GOOGL", start_date=strategy["start_date"], end_date=strategy["end_date"], parameters=strategy)
+
   # Run backtests for all combinations of parameters
   backtest_results = run_many_backtests(asset="GOOGL", indicator_params_range=strategy["indicator_params_range"], start_date=strategy["start_date"], cash=100000, commission=0.001)
   
   # Save each backtest result
   for result in backtest_results:
-    save_single_backtest_result(strategy_id=strategy_id, backtest_result=result, session=session)
+    save_single_backtest_result(scene_id=scene_id, backtest_result=result, session=session)
   
-  # Save the scene
-  save_scene(strategy_id=strategy_id, asset="GOOGL", start_date=strategy["start_date"], end_date=strategy["end_date"], parameters=strategy)
 
 if __name__ == "__main__":
   strategy = {
