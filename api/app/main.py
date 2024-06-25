@@ -10,6 +10,8 @@ import coloredlogs
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
+from sqlalchemy.orm import Session
+from app import get_db
 
 
 os.chdir("../")
@@ -77,17 +79,22 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
 
 @app.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # In a real application, we fetch user data from your database
     # For this example, we'll just hardcode a user
 
     # **Important:**  Replace this with actual user retrieval logic
     # user = None  # Fetch user from your database based on form_data.username
-    user = {
-        "username": "doen",
-        "email": "doentest@gmail.com",
-        "hashed_password": "$2b$12$8dUj8h2tzXLvej8kHwYZrejTHLv6Zq5rKv34Nijo8cHGb7WLimiEm"
-    }
+    print("FORM DATA: ", form_data.password)
+    # Query the database for the user
+    user = db.query(Dim_Users).filter(Dim_Users.UserName == form_data.username).first()
+    logger.info("User: ", user)
+
+    # user = {
+    #     "username": "doen",
+    #     "email": "doentest@gmail.com",
+    #     "hashed_password": "$2b$12$8dUj8h2tzXLvej8kHwYZrejTHLv6Zq5rKv34Nijo8cHGb7WLimiEm"
+    # }
 
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
