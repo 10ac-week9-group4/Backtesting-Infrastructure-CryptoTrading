@@ -1,0 +1,45 @@
+# Base Image for Your Project
+FROM python:3.9-alpine
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV APP_HOME=/app
+
+WORKDIR $APP_HOME
+
+# Copy the requirements file into the container
+COPY requirements-base.txt $APP_HOME/
+
+# Copy the shared code into the container
+COPY ./src/shared $APP_HOME/shared
+
+# Copy the scripts i.e wait-for-it.sh
+COPY ./src/scripts $APP_HOME/scripts
+
+# Copy the database models
+COPY ./database_models $APP_HOME/database_models
+
+# Install system-level dependencies
+RUN apk add --no-cache gcc musl-dev linux-headers bash  # For compiling dependencies
+
+# Install entr 
+RUN apk add --update entr
+
+# Install librdkafka development package
+RUN apk add librdkafka-dev 
+
+# Install common Python libraries
+RUN pip install -r requirements-base.txt --no-cache-dir 
+
+# (Optional) Create a non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Set the user to the newly created user
+USER appuser 
+
+# (Optional) Expose any common ports needed by your services
+# EXPOSE 8000
+
+# (Optional) Default command to keep the container running
+# CMD ["tail", "-f", "/dev/null"]

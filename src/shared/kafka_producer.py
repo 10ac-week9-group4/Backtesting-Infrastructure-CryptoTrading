@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-KAFKA_BROKER_URL = os.getenv("KAFKA_BROKER_URL", "localhost:9094")
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")
 
 logger = logging.getLogger(__name__)
 # Set up logging
@@ -16,10 +16,10 @@ logging.basicConfig(
 )
 
 # Kafka Configuration
-def create_kafka_producer(broker_url=KAFKA_BROKER_URL, extra_config=None):
+def create_kafka_producer(kafka_bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS, extra_config=None):
     """Creates and configures a Kafka Producer."""
     conf = {
-        'bootstrap.servers': broker_url,
+        'bootstrap.servers': kafka_bootstrap_servers,
         'client.id': socket.gethostname(),
         'acks': 'all',
         'retries': 3,

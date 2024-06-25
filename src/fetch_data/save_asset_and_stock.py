@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
-from models import Base, Fact_StockPrices, Dim_Assets, Dim_Date
+from database_models import Base, Fact_StockPrices, Dim_Assets, Dim_Date
 import yfinance as yf
 from datetime import datetime
 

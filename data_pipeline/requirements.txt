@@ -1,5 +1,0 @@
-rich
-coloredlogs
-colorama
-kafka-python
-psycopg2-binary

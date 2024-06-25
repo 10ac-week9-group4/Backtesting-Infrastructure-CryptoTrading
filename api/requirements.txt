@@ -1,9 +1,5 @@
 fastapi==0.111.0
 pydantic==2.7.4
-kafka-python
-rich
-coloredlogs
-colorama
 passlib
-confluent_kafka
 python-jose
+bcrypt
