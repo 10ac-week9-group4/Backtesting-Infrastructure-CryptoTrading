@@ -3,14 +3,15 @@
 # Makefile for managing PostgreSQL users in Docker
 
 POSTGRES_CONTAINER := postgres  # Adjust if your container name is different
-POSTGRES_USER := airflow
+POSTGRES_MAIN_USER := airflow
+POSTGRES_USER := postgres
 
 create-superuser:
-	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -c "\
+	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_MAIN_USER) -c "\
 	CREATE USER postgres WITH SUPERUSER CREATEDB CREATEROLE LOGIN PASSWORD 'billna1';"
 
 drop-user:
-	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -c "DROP USER postgres;"
+	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_MAIN_USER) -c "DROP USER postgres;"
 
 # Create a database trading data
 create-db:
@@ -19,6 +20,10 @@ create-db:
 # Drop the trading data database
 drop-db:
 	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -c "DROP DATABASE IF EXISTS trading_data;"
+
+make init-db:
+	make create-superuser
+	make create-db
 
 build-all:
 	docker compose build
@@ -69,3 +74,27 @@ build-base-image-restart:
 	make build-base-image
 	make build-all
 	make run
+
+# Command to stop the container passed in to replace % with the container name
+d-%:
+	docker compose down $*
+
+up-%:
+	docker compose up -d $*
+
+run-%:
+	make d-$*
+	make up-$*
+
+logs-%:
+	docker compose logs -f $*
+
+build-%:
+	docker compose build $* --no-cache
+	docker compose up -d $*
+	docker compose logs -f $*
+
+bash-%:
+	docker compose exec $* bash
+
+	
