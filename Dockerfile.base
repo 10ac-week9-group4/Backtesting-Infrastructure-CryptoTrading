@@ -17,6 +17,9 @@ COPY ./src/shared $APP_HOME/shared
 # Copy the scripts i.e wait-for-it.sh
 COPY ./src/scripts $APP_HOME/scripts
 
+# Copy the database models
+COPY ./database_models $APP_HOME/database_models
+
 # Install system-level dependencies
 RUN apk add --no-cache gcc musl-dev linux-headers bash  # For compiling dependencies
 

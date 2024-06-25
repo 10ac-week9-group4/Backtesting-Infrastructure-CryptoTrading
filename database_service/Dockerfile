@@ -14,7 +14,7 @@ WORKDIR /app
 # RUN pip install -r requirements.txt --no-cache-dir
 
 # Copy your database service script into the container
-COPY ./database_service.py /app/
+COPY ./database_service.py /app/database_service.py
 
 # Run the database service script when the container starts
 CMD ["uvicorn", "database_service:app", "--host", "0.0.0.0", "--reload", "--port", "8001"]

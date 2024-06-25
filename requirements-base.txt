@@ -6,3 +6,5 @@ fastapi
 websockets
 coloredlogs
 confluent-kafka
+yfinance
+python-binance
