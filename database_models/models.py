@@ -68,6 +68,8 @@ class Dim_Scene(Base):
   SceneID = Column(Integer, primary_key=True, autoincrement=True)
   SceneKey = Column(String(100))
   Symbol = Column(String(10))
+  Cash = Column(Numeric(18, 4))
+  Commission = Column(Numeric(18, 4))
   StartDate = Column(Date)
   EndDate = Column(Date)
   StrategyID = Column(Integer, ForeignKey('dim_strategy.StrategyID'))
@@ -92,7 +94,7 @@ class Fact_Backtests(Base):
   BacktestID = Column(Integer, primary_key=True, autoincrement=True)
   CreatedAt = Column(DateTime, default=func.now())  # Add this line to store the current timestamp
   UserID = Column(Integer, ForeignKey('dim_users.UserID'))
-  Scene_ID = Column(Integer, ForeignKey('dim_scene.SceneID'))
+  SceneID = Column(Integer, ForeignKey('dim_scene.SceneID'))
   MaxDrawdown = Column(Numeric(18, 4))
   SharpeRatio = Column(Numeric(18, 4))
   Return = Column(Numeric(18, 4))
