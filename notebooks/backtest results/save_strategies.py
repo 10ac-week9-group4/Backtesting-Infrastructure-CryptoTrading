@@ -31,37 +31,7 @@ def generate_param_combinations(param_ranges):
     return combination_dicts
 
 
-def generate_strategy_id(strategy_params, asset, start_date, end_date):
-    id_components = {
-        'strategy_params': strategy_params,
-        'asset': asset,
-        'start_date': start_date,
-        'end_date': end_date
-    }
-    serialized_components = json.dumps(id_components, sort_keys=True)
-    strategy_id = hashlib.sha256(serialized_components.encode()).hexdigest()
-    return strategy_id
 
-def run_many_backtests(asset, indicator_params_range, start_date, cash, commission):
-    combinations = generate_param_combinations(indicator_params_range)
-    all_results = []
-    for combination in combinations:
-        # Generate a unique strategyID for each set of parameters
-        strategy_id = generate_strategy_id(combination, asset, start_date, strategy['end_date'])
-        
-        # Here, you would run your backtest based on the strategy_params
-        # For demonstration, let's assume the backtest returns a dictionary of results
-        # Replace the following line with your actual backtest call
-
-        # backtest_results = {"profit": 1000, "max_drawdown": 5}  # Example results
-        backtest_results = prepare_and_run_backtest(strategy_params=combination)
-        
-        # Add the strategyID to the results
-        results_with_id = backtest_results.copy()
-        results_with_id['strategyID'] = strategy_id
-        
-        all_results.append(results_with_id)
-    return all_results
 
 # Your existing strategy setup
 strategy = {
@@ -116,13 +86,81 @@ def save_strategy(strategy_params):
 
 from datetime import datetime
 
+def get_existing_backtest_result(scene_id, session=None):
+  if session is None:
+    session = init_db()
+
+  # Query the database for existing backtest results using the Scene Id
+  existing_result = session.query(Fact_Backtests).filter_by(SceneID=scene_id).first()
+  if existing_result:
+    # Convert the database model instance to a dictionary or a similar structure that matches the expected backtest result format
+    return {
+      'max_drawdown': existing_result.MaxDrawdown,
+      'sharpe_ratio': existing_result.SharpeRatio,
+      'return': existing_result.Return,
+      'win_trade': existing_result.WinningTrades,
+      'loss_trade': existing_result.LossingTrades,
+      'total_trade': existing_result.TradeCount,
+      'start_portfolio': existing_result.StartPortfolio,
+      'final_portfolio': existing_result.FinalPortfolio,
+      'scene_id': existing_result.SceneID,
+      'created_at': existing_result.CreatedAt
+    }
+  else:
+    return None
+
+def generate_scene_key(strategy_params, asset, start_date, end_date):
+    id_components = {
+        'strategy_params': strategy_params,
+        'asset': asset,
+        'start_date': start_date,
+        'end_date': end_date
+    }
+    serialized_components = json.dumps(id_components, sort_keys=True)
+    strategy_id = hashlib.sha256(serialized_components.encode()).hexdigest()
+    return strategy_id
+
+# New function to handle a single backtest execution
+def execute_single_backtest(scene, scene_id, session=None):
+  if session is None:
+    session = init_db()
+  # Generate SceneID for the combination
+  # scene_key = generate_scene_key(combination, asset, start_date, end_date)
+  
+  # Check if results for this SceneID already exist
+  existing_results = get_existing_backtest_result(scene_id, session)
+  if existing_results:
+    results_with_id = existing_results.copy()
+    results_with_id['SceneID'] = scene_id
+  else:
+    # If no existing results, run the backtest
+    backtest_results = prepare_and_run_backtest(strategy_params=scene["parameters"])
+    results_with_id = backtest_results.copy()
+    results_with_id['SceneID'] = scene_id
+    # Save the new backtest result here if needed
+  
+  return results_with_id
+
+# Refactored run_many_backtests function
+# def run_many_backtests(asset, indicator_params_range, start_date, cash, commission, session=None):
+#   if session is None:
+#     session = init_db()
+
+
+#   combinations = generate_param_combinations(indicator_params_range)
+#   all_results = []
+#   for combination in combinations:
+#     result = execute_single_backtest(asset, combination, start_date, cash, commission, session)
+#     all_results.append(result)
+#   return all_results
+
 
 def save_single_backtest_result(scene_id, backtest_result, session=None):
   if session is None:
     session = init_db()
   
   backtest = Fact_Backtests(
-    Scene_ID=scene_id,
+    SceneID=scene_id,
     MaxDrawdown=backtest_result['max_drawdown'],
     SharpeRatio=backtest_result['sharpe_ratio'],
     Return=backtest_result['return'],
@@ -145,18 +183,11 @@ def save_backtest_results(strategy_id, backtest_results):
 
 
 
-def save_scene(strategy_id, asset, start_date, end_date, parameters):
+def save_scene(scene, strategy_id):
   session = init_db()
 
   # Serialize parameters to generate a unique SceneKey
-  serialized_params = json.dumps({
-    "strategy_id": strategy_id,
-    "asset": asset,
-    "start_date": start_date,
-    "end_date": end_date,
-    "parameters": parameters
-  }, sort_keys=True)
-  
+  serialized_params = json.dumps(scene, sort_keys=True)
   # Generate SceneKey using SHA256 hash
   scene_key = hashlib.sha256(serialized_params.encode()).hexdigest()
 
@@ -168,10 +199,12 @@ def save_scene(strategy_id, asset, start_date, end_date, parameters):
     scene = Dim_Scene(
       SceneKey=scene_key,
       StrategyID=strategy_id,
-      Symbol=asset,
-      StartDate=start_date,
-      EndDate=end_date,
-      Parameters=json.dumps(parameters)
+      Symbol=scene["asset"],
+      Cash=scene["cash"],
+      Commission=scene["commission"],
+      StartDate=scene["start_date"],
+      EndDate=scene["end_date"],
+      Parameters=json.dumps(scene["parameters"])
     )
     session.add(scene)
     session.commit()
@@ -179,6 +212,8 @@ def save_scene(strategy_id, asset, start_date, end_date, parameters):
   else:
     # If a scene with the same SceneKey exists, return its SceneID (or handle as needed)
     return existing_scene.SceneID
+
+
 
 # Example usage
 # strategy_id = save_strategy(strategy_params=strategy, asset="GOOGL", start_date="2022-12-19", end_date="2023-02-19")
@@ -193,24 +228,54 @@ def main(strategy):
   # Initialize DB session
   session = init_db()
 
+  asset = "GOOGL"
+  start_date = strategy["start_date"]
+  end_date = strategy["end_date"]
+  cash = 105000
+  commission = 0.000
+  parameters = strategy
+  indicator_params_range = strategy["indicator_params_range"]
+
   # Save the strategy and get its ID
   strategy_id = save_strategy(strategy_params=strategy)
   
   # Save the scene
-  scene_id = save_scene(strategy_id=strategy_id, asset="GOOGL", start_date=strategy["start_date"], end_date=strategy["end_date"], parameters=strategy)
+  # scene_id = save_scene(strategy_id=strategy_id, asset="GOOGL", start_date=strategy["start_date"], parameters=strategy)
 
   # Run backtests for all combinations of parameters
-  backtest_results = run_many_backtests(asset="GOOGL", indicator_params_range=strategy["indicator_params_range"], start_date=strategy["start_date"], cash=100000, commission=0.001)
-  
+  # backtest_results = run_many_backtests(asset="GOOGL", indicator_params_range=strategy["indicator_params_range"], start_date=strategy["start_date"], cash=100000, commission=0.001)
+
+
+  params_combinations = generate_param_combinations(indicator_params_range)
+  all_results = []
+  for parameters in params_combinations:
+    scene_details = {
+      "asset": asset,
+      "start_date": start_date,
+      "end_date": end_date,
+      "cash": cash,
+      "commission": commission,
+      "parameters": parameters
+    }
+
+    # save_scene or get scene_id if scene already exists
+    scene_id = save_scene(scene_details, strategy_id)
+
+    result = execute_single_backtest(scene_details, scene_id, session)
+    all_results.append(result)
+  return all_results
+
   # Save each backtest result
-  for result in backtest_results:
-    save_single_backtest_result(scene_id=scene_id, backtest_result=result, session=session)
+  # for result in backtest_results:
+    # save_single_backtest_result(scene_id=scene_id, backtest_result=result, session=session)
   
 
 if __name__ == "__main__":
   strategy = {
     "start_date": "2022-12-19",
     "end_date": "2023-02-19",
+    "cash": 100000,
+    "commission": 0.001,
     "indicator": "SmaCrossOver",
     "indicator_params_range": {
       'pfast': [10],
