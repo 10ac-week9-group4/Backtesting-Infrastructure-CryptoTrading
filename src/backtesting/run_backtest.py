@@ -11,24 +11,43 @@ from src.strategies import SmaCrossOver, SMA_RSI, SMA, TestStrategy
 # Get today's date as a string in the format YYYY-MM-DD
 today_date_string = datetime.now().strftime("%Y-%m-%d")
 
+def prepare_and_run_many_backtests(
+        asset: str = "GOOGL",
+        strategy = SmaCrossOver,
+        strategy_params_list: list = [{}],  # List of dictionaries
+        data_path: str = "../stock_data.csv",
+        start_date: str = "2006-12-19",
+        end_date: str = today_date_string,
+        cash: int = 100000,
+        commission: float = 0
+    ) -> list:
+    all_results = []  # Store results from each backtest
+    for strategy_params in strategy_params_list:  # Iterate over each parameter set
+        cerebro = prepare_cerebro(asset, strategy, data_path, start_date, end_date, cash, commission, **strategy_params)
+        result = run_test(cerebro)
+        all_results.append(result)
+    return all_results
+
+
 def prepare_and_run_backtest(
         asset:str="GOOGL",
         strategy=SmaCrossOver,
+        strategy_params={},
         data_path:str="../stock_data.csv",
         start_date:str="2006-12-19",
         end_date:str=today_date_string,
         cash:int=100000,
         commission:float=0
   )->dict:
-    cerebro = prepare_cerebro(asset,strategy,data_path,start_date,end_date,cash,commission)
+    cerebro = prepare_cerebro(asset,strategy,data_path,start_date,end_date,cash,commission, **strategy_params)
     result = run_test(cerebro)
     return result
 
-def prepare_cerebro(asset,strategy,data_path,start_date:str,end_date:str=datetime.now(),cash:int=100000,commission:float=0)->bt.Cerebro:
+def prepare_cerebro(asset,strategy,data_path,start_date:str,end_date:str=datetime.now(),cash:int=100000,commission:float=0,  **strategy_params)->bt.Cerebro:
     cerebro = bt.Cerebro()
     cerebro.broker.setcash(cash)
     cerebro.broker.setcommission(commission=commission)
-    cerebro.addstrategy(strategy)
+    cerebro.addstrategy(strategy, **strategy_params)
     
     if end_date is None:
         end_date = datetime.now().strftime("%Y-%m-%d")
