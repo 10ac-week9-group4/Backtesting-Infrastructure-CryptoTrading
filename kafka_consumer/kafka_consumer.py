@@ -41,18 +41,28 @@ async def consume_messages(consumer):
         continue
     yield json.loads(msg.value().decode('utf-8'))
 
-async def forward_message_to_service(topic, message):
+# Assuming endpoint_mapping and other necessary imports and variables are defined above
+
+async def forward_message_to_service(topic, message, max_retries=5, retry_delay=2):
   endpoint = endpoint_mapping.get(topic)
-  if endpoint:
+  if not endpoint:
+    print(f"No endpoint defined for topic: {topic}")
+    return
+
+  attempt = 0
+  while attempt < max_retries:
     try:
       message_json = json.dumps(message)
       async with websockets.connect(endpoint) as ws:
         await ws.send(message_json)
       print(f"Successfully forwarded message to {endpoint}")
+      return  # Exit function after successful sending
     except Exception as e:
-      print(f"Failed to forward message to {endpoint}, Error: {e}")
-  else:
-    print(f"No endpoint defined for topic: {topic}")
+      print(f"Attempt {attempt + 1}: Failed to forward message to {endpoint}, Error: {e}")
+      attempt += 1
+      await asyncio.sleep(retry_delay)  # Wait before retrying
+
+  print(f"Failed to forward message to {endpoint} after {max_retries} attempts.")
 
 async def consume_and_forward_messages(topic_names):
   async def consume_and_forward_for_topic(topic_name):
