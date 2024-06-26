@@ -49,6 +49,10 @@ def save_single_backtest_result(scene_id, backtest_result, session=None):
   if session is None:
     session = init_db()
   
+  existing_result = session.query(Fact_Backtests).filter_by(SceneID=scene_id).first()
+
+  if existing_result:
+    return # Do not save the result if it already exists
   backtest = Fact_Backtests(
     SceneID=scene_id,
     MaxDrawdown=backtest_result['max_drawdown'],

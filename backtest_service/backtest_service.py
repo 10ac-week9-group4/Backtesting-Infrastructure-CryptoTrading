@@ -6,6 +6,7 @@ import coloredlogs
 from starlette.websockets import WebSocketState
 from sqlalchemy.exc import SQLAlchemyError
 from database_models import init_db
+from shared.kafka_producer import send_message_to_kafka
 from backtest_service.bt_utils import get_strategy_by_name, get_scene_by_key, save_scene, get_existing_backtest_result, execute_single_backtest, save_single_backtest_result
 
 # Initialize FastAPI app
@@ -23,6 +24,19 @@ logger.info("BACKTEST Service started...")
 
 # Initialize the database using models.py's init_db function
 session = init_db()
+
+from decimal import Decimal
+import datetime
+import json
+
+def serialize_decimal(obj):
+    """JSON serializer for objects not serializable by default json code"""
+    if isinstance(obj, Decimal):
+        return float(obj)  # or str(obj) if you want to keep exact values
+    if isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    raise TypeError ("Type %s not serializable" % type(obj))
+
 
 def handle_scene(scene_message: dict, session):
     """
@@ -71,6 +85,14 @@ def handle_scene(scene_message: dict, session):
             results = execute_single_backtest(scene_message, scene.SceneID, session)
             print("Results: ", results)
             save_single_backtest_result(scene.SceneID, results, session)
+
+            # Convert results to JSON, handling Decimal and datetime objects
+            results_json = json.dumps(results, default=serialize_decimal)
+
+            # Send the results to Kafka
+            isSuccess = send_message_to_kafka("backtest_results", results_json)
+            if isSuccess:
+                logger.info("Backtest results sent to Kafka.")
         except SQLAlchemyError as e:
             logger.error(f"Failed to run backtests: {e}")
             return {"error": "Failed to run backtests."}
