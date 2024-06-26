@@ -1,15 +1,15 @@
 FROM base-image-gold:latest
 
 # Set the working directory
-WORKDIR /code
+WORKDIR /app
 
 # Copy requirements file
-ADD ./requirements.txt /code/requirements.txt
+COPY ./requirements.txt /app/api/requirements.txt
 
 # Install requirements
-RUN pip install --upgrade -r /code/requirements.txt
+RUN pip install --upgrade -r /app/api/requirements.txt
 
 # Copy app files
-ADD ./app /code/app
+COPY ./app /app/api
 
 # CMD ["/app/scripts/wait-for-it.sh", "kafka:9092", "--", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--reload", "--port", "8000"]

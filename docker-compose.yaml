@@ -301,9 +301,9 @@ services:
     <<: *common-service
     build: ./api
     command: >          # Use the '>' for multi-line commands
-      /app/scripts/wait-for-it.sh kafka:9092 -- uvicorn app.main:app --host 0.0.0.0 --reload --port 8000    
+      /app/scripts/wait-for-it.sh kafka:9092 -- uvicorn api.main:app --host 0.0.0.0 --reload --port 8000    
     volumes:
-      - ./api/app:/code/app
+      - ./api/app:/app/api
     ports:
       - "8089:8000"
 
@@ -332,12 +332,9 @@ services:
 
   backtest-service:
     <<: *common-service
-    command: uvicorn backtest_service:app --host 0.0.0.0 --reload --port 8002
+    command: uvicorn backtest_service.backtest_service:app --host 0.0.0.0 --reload --port 8002
     volumes:
-      - ./backtest_service/backtest_service.py:/app/backtest_service.py
-      - ./backtest_service/strategies:/app/strategies
-      - ./backtest_service/backtesting:/app/backtesting
-      - ./backtest_service/fetch_data:/app/fetch_data
+      - ./backtest_service:/app/backtest_service/
     ports:
       - 8002:8002
 

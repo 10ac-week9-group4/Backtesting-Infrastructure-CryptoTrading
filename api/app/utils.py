@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 import os
-import sys
-sys.path.append(os.path.abspath(os.path.join('../../', 'app')))
+# import sys
+# sys.path.append(os.path.abspath(os.path.join('../', 'app')))
 from database_models.models import Dim_Users, init_db  # Adjust the import path as necessary
 
 # Dependency to get DB session

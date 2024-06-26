@@ -11,13 +11,12 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-from app.utils import get_user_by_username
+from utils import get_user_by_username
 
 from pydantic import BaseModel, Field
 from datetime import date
 from typing import Dict, Any
 from decimal import Decimal
-
 
 os.chdir("../")
 
@@ -51,9 +50,6 @@ credentials_exception = HTTPException(
     detail="Could not validate credentials",
     headers={"WWW-Authenticate": "Bearer"},
 )
-
-# Main FastAPI application
-app = FastAPI()
 
 # Pydantic models for data validation
 class User(BaseModel):
