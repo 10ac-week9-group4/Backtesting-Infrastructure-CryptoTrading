@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-from utils import get_user_by_username
 
 from pydantic import BaseModel, Field
 from datetime import date
@@ -19,6 +18,7 @@ from typing import Dict, Any
 from decimal import Decimal
 
 os.chdir("../")
+from api.utils import get_user_by_username
 
 from shared import create_and_consume_messages
 from shared import send_message_to_kafka
@@ -153,12 +153,13 @@ from typing import Dict, Any
 from decimal import Decimal
 
 class Parameters(BaseModel):
+    symbol: str = Field(..., example="AAPL")
     start_date: date = Field(..., example="2022-12-19")
     end_date: date = Field(..., example="2023-02-19")
     cash: Decimal = Field(gt=Decimal('0'), example=Decimal('100000'))
     commission: Decimal = Field(gt=Decimal('0'), lt=Decimal('1'), example=Decimal('0.001'))
-    indicator: str = Field(..., example="SmaCrossOver")
-    indicator_params: Dict[str, Any] = Field(..., example={"pfast": 10, "pslow": 30})
+    strategy: str = Field(..., example="SmaCrossOver")
+    parameters: Dict[str, Any] = Field(..., example={"pfast": 10, "pslow": 30})
 
     def to_json_serializable_dict(self):
         # Use a dictionary comprehension to convert all Decimal values to strings

@@ -27,18 +27,21 @@ def generate_scene_key(scene):
   return hashlib.sha256(serialized_params.encode()).hexdigest()
 
 def get_scene_by_key(session, scene):
+  print("Getting scene by key...")
   scene_key = generate_scene_key(scene)
+  print("Scene key: ", scene_key)
   return session.query(Dim_Scene).filter_by(SceneKey=scene_key).first()
 
 def save_scene(scene, strategy_id, session):
   scene_key = generate_scene_key(scene)
-  existing_scene = get_scene_by_key(scene_key, session)
+  existing_scene = get_scene_by_key(session, scene_key)
+  print("Existing scene: ", existing_scene)
 
   if existing_scene is None:
     new_scene = Dim_Scene(
       SceneKey=scene_key,
       StrategyID=strategy_id,
-      Symbol=scene["asset"],
+      Symbol=scene["symbol"],
       Cash=scene["cash"],
       Commission=scene["commission"],
       StartDate=scene["start_date"],
@@ -47,9 +50,9 @@ def save_scene(scene, strategy_id, session):
     )
     session.add(new_scene)
     session.commit()
-    return new_scene.SceneID
+    return new_scene
   else:
-    return existing_scene.SceneID
+    return existing_scene
 
 
 # TODO Change scene to look like this:      e.g. {
