@@ -1,0 +1,30 @@
+,
+  {
+    "strategy_name": "MACD",
+    "date_range": {
+      "start_date": "2023-06-01",
+      "end_date": "2023-06-30"
+    },
+    "indicator": "macd",
+    "indicator_params_range": {
+      "fast_ema": [12],
+      "slow_ema": [26],
+      "signal_period": [9]
+    }
+  }
+
+
+[
+  {
+    "strategy_name": "SMA Crossover",
+    "date_range": {
+      "start_date": "2023-01-01",
+      "end_date": "2023-12-31"
+    },
+    "indicator": "sma_crossover",
+    "indicator_params_range": {
+      "pfast": [5, 10, 15, 20],
+      "pslow": [20, 30, 50, 100, 200]
+    }
+  }
+]

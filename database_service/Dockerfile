@@ -17,4 +17,4 @@ WORKDIR /app
 COPY ./database_service.py /app/database_service.py
 
 # Run the database service script when the container starts
-CMD ["uvicorn", "database_service:app", "--host", "0.0.0.0", "--reload", "--port", "8001"]
+# CMD ["uvicorn", "database_service:app", "--host", "0.0.0.0", "--reload", "--port", "8001"]
