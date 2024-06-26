@@ -13,7 +13,8 @@ DATABASE_SERVICE_URL = os.getenv("DATABASE_SERVICE_URL", "ws://database-service:
 endpoint_mapping = {
   "stock_data": f"{DATABASE_SERVICE_URL}/ws/stock_data",
   "user_registrations": f"{DATABASE_SERVICE_URL}/ws/user_registrations",
-  "backtest_results": f"{DATABASE_SERVICE_URL}/ws/backtest_results"
+  "backtest_results": f"{DATABASE_SERVICE_URL}/ws/backtest_results",
+  "scenes_topic": f"{DATABASE_SERVICE_URL}/ws/scenes"
 }
 
 def create_kafka_consumer(topic_name, kafka_bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS, group_id_suffix='consumer'):
@@ -73,7 +74,7 @@ async def consume_and_forward_messages(topic_names):
   await asyncio.gather(*tasks)
 
 async def main():
-  topic_names = ['stock_data', 'user_registrations', 'backtest_results']
+  topic_names = ['stock_data', 'user_registrations', 'backtest_results', 'scenes_topic']
   await consume_and_forward_messages(topic_names)
 
 if __name__ == "__main__":

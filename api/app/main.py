@@ -13,6 +13,11 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from app.utils import get_user_by_username
 
+from pydantic import BaseModel, Field
+from datetime import date
+from typing import Dict, Any
+from decimal import Decimal
+
 
 os.chdir("../")
 
@@ -141,3 +146,41 @@ async def register(user: User):
     except Exception as e:
         logger.error(f"Error sending message to Kafka: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
+    
+
+
+# Step 1: Define the Data Model
+
+from datetime import date, datetime
+from pydantic import BaseModel, Field
+from typing import Dict, Any
+from decimal import Decimal
+
+class Parameters(BaseModel):
+    start_date: date = Field(..., example="2022-12-19")
+    end_date: date = Field(..., example="2023-02-19")
+    cash: Decimal = Field(gt=Decimal('0'), example=Decimal('100000'))
+    commission: Decimal = Field(gt=Decimal('0'), lt=Decimal('1'), example=Decimal('0.001'))
+    indicator: str = Field(..., example="SmaCrossOver")
+    indicator_params: Dict[str, Any] = Field(..., example={"pfast": 10, "pslow": 30})
+
+    def to_json_serializable_dict(self):
+        # Use a dictionary comprehension to convert all Decimal values to strings
+        serializable_dict = {k: (str(v) if isinstance(v, Decimal) else v) for k, v in self.dict().items()}
+        # Convert date fields to isoformat
+        serializable_dict["start_date"] = self.start_date.isoformat()
+        serializable_dict["end_date"] = self.end_date.isoformat()
+        return serializable_dict
+
+# Step 2: Create the Endpoint
+@app.post("/backtest_scene")
+async def backtest(parameters: Parameters):
+    try:
+        parameters_json_serializable = parameters.to_json_serializable_dict()
+        is_success = send_message_to_kafka("scenes_topic", parameters_json_serializable)
+        if is_success:
+            return {"message": "Data sent to Kafka successfully", "success": True}
+        else:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to send message to Kafka.")
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error sending message to Kafka: {e}")
