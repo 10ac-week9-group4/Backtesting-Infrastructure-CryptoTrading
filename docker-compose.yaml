@@ -69,6 +69,8 @@ services:
       POSTGRES_DB: airflow
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
+      - ./src/scripts/create_users_dbs.sh:/docker-entrypoint-initdb.d/create_users_dbs.sh
+
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 10s
@@ -298,14 +300,17 @@ services:
   api:
     <<: *common-service
     build: ./api
+    command: >          # Use the '>' for multi-line commands
+      /app/scripts/wait-for-it.sh kafka:9092 -- uvicorn api.main:app --host 0.0.0.0 --reload --port 8000    
     volumes:
-      - ./api/app:/code/app
+      - ./api/app:/app/api
     ports:
       - "8089:8000"
 
   kafka-consumer:
     <<: *common-service
     build: ./kafka_consumer    # The Dockerfile is in this directory
+    command: sh -c "/app/scripts/wait-for-it.sh kafka:9092 -- ls *.py | entr -n -r python kafka_consumer.py"
     volumes:
       - ./kafka_consumer/kafka_consumer.py:/app/kafka_consumer.py
     depends_on:
@@ -316,6 +321,7 @@ services:
   database-service:
     <<: *common-service
     build: ./database_service
+    command: uvicorn database_service:app --host 0.0.0.0 --reload --port 8001
     ports:
       - 8001:8001
     volumes:
@@ -323,6 +329,15 @@ services:
       - ./alembic:/app/alembic
     depends_on:
       - postgres
+
+  backtest-service:
+    <<: *common-service
+    build: ./backtest_service
+    command: uvicorn backtest_service.backtest_service:app --host 0.0.0.0 --reload --port 8002
+    volumes:
+      - ./backtest_service:/app/backtest_service/
+    ports:
+      - 8002:8002
 
   topic_creator:
     image: base-image-gold:latest
@@ -332,10 +347,11 @@ services:
     restart: "no"  # Ensure it only runs once
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      TOPIC_NAMES: "stock_data, backtest_results, user_registrations"
+      TOPIC_NAMES: "stock_data, backtest_results, user_registrations, scenes_topic"
       PARTITIONS: 1
       REPLICATION_FACTOR: 1
 
+  
 
 volumes:
   postgres-db-volume:

@@ -8,3 +8,5 @@ coloredlogs
 confluent-kafka
 yfinance
 python-binance
+uvicorn
+gunicorn
