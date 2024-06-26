@@ -6,6 +6,15 @@ POSTGRES_CONTAINER := postgres  # Adjust if your container name is different
 POSTGRES_MAIN_USER := airflow
 POSTGRES_USER := postgres
 
+start:
+	make build-base-image
+	make build-all
+	export PYTHONPATH=$PYTHONPATH:$(pwd)
+	make up
+	alembic upgrade head
+	make save-strategies
+
+
 save-strategies:
 	python backtest_service/scripts/save_strategies.py
 

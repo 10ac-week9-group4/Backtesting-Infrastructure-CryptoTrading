@@ -70,7 +70,8 @@ services:
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
       - ./src/scripts/create_users_dbs.sh:/docker-entrypoint-initdb.d/create_users_dbs.sh
-
+      - ./src/scripts/drop_all_tables_in_trading_data.sql:/docker-entrypoint-initdb.d/drop_all_tables_in_trading_data.sql
+      - ./src/scripts/z_drop_all_tables_in_trading_data.sh:/docker-entrypoint-initdb.d/z_drop_all_tables_in_trading_data.sh
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 10s
