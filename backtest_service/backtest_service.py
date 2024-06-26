@@ -6,7 +6,7 @@ import coloredlogs
 from starlette.websockets import WebSocketState
 from sqlalchemy.exc import SQLAlchemyError
 from database_models import init_db
-from backtest_service.bt_utils import get_strategy_by_name, get_scene_by_key, save_scene
+from backtest_service.bt_utils import get_strategy_by_name, get_scene_by_key, save_scene, get_existing_backtest_result, execute_single_backtest
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -57,6 +57,7 @@ def handle_scene(scene_message: dict, session):
             logger.error(f"Failed to fetch scene: {e}")
             return {"error": "Failed to fetch scene from database."}
 
+
         if scene is None:
             logger.info("Scene not found in DB. Saving scene...")
             try:
@@ -65,17 +66,19 @@ def handle_scene(scene_message: dict, session):
                 logger.error(f"Failed to save scene: {e}")
                 return {"error": "Failed to save scene to database."}
 
-        print("Scene FROM DB: ", scene)
+        # Run the backtests
+        try:
+            results = execute_single_backtest(scene_message, scene.SceneID, session)
+            print("Results: ", results)
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to run backtests: {e}")
+            return {"error": "Failed to run backtests."}
 
-        # Here you would continue with the logic to get or run backtests,
-        # which should also include error handling similar to the above.
 
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")
         return {"error": "An unexpected error occurred during scene processing."}
     finally:
-        # Assuming session.close() is the correct method to close your session
-        # Adjust according to your session management
         session.close()
 
     # Assuming save_scene and get_or_run_backtests are defined in save_strategies.py

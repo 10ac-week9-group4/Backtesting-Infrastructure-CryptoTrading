@@ -7,7 +7,7 @@ POSTGRES_MAIN_USER := airflow
 POSTGRES_USER := postgres
 
 save-strategies:
-	cd backtest_service && python scripts/save_strategies.py
+	python backtest_service/scripts/save_strategies.py
 
 create-superuser:
 	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_MAIN_USER) -c "\

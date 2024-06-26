@@ -1,12 +1,9 @@
-import os
-os.chdir("../../")
-
 from datetime import datetime
 from backtrader.analyzers import Returns,DrawDown,SharpeRatio,TradeAnalyzer
 import yfinance as yf
 import backtrader as bt
 
-from src.strategies import SmaCrossOver, SMA_RSI, SMA, TestStrategy
+from backtest_service.strategies import SmaCrossOver, SMA_RSI, SMA, Test_Strategy
 
 # Get today's date as a string in the format YYYY-MM-DD
 today_date_string = datetime.now().strftime("%Y-%m-%d")

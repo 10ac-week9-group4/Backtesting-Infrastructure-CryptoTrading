@@ -4,8 +4,8 @@ import os
 import sys
 from dotenv import load_dotenv
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from bt_utils import save_strategy
+# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from backtest_service.bt_utils.strategy_utils import save_strategy
 
 load_dotenv()
 DATABASE_URL = os.environ.get('DATABASE_URL')
@@ -32,7 +32,7 @@ def load_strategies_from_json(file_path):
 
 def main():
   session = init_db()
-  strategies = load_strategies_from_json('strategies/strategies.json')
+  strategies = load_strategies_from_json('backtest_service/strategies/strategies.json')
   for strategy_params in strategies:
     strategy_id = save_strategy(strategy_params)
     print(f"Strategy saved with ID: {strategy_id}")

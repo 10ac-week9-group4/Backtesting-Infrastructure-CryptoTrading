@@ -34,7 +34,7 @@ def get_scene_by_key(session, scene):
 
 def save_scene(scene, strategy_id, session):
   scene_key = generate_scene_key(scene)
-  existing_scene = get_scene_by_key(session, scene_key)
+  existing_scene = get_scene_by_key(session, scene)
   print("Existing scene: ", existing_scene)
 
   if existing_scene is None:

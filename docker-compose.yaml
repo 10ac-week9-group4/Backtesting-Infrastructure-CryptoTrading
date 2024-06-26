@@ -332,6 +332,7 @@ services:
 
   backtest-service:
     <<: *common-service
+    build: ./backtest_service
     command: uvicorn backtest_service.backtest_service:app --host 0.0.0.0 --reload --port 8002
     volumes:
       - ./backtest_service:/app/backtest_service/
