@@ -1,0 +1,15 @@
+
+[
+  {
+    "strategy_name": "SMA Crossover",
+    "date_range": {
+      "start_date": "2022-01-01",
+      "end_date": "2023-12-31"
+    },
+    "indicator": "sma_crossover",
+    "indicator_params_range": {
+      "pfast": [10],
+      "pslow": [200]
+    }
+  }
+]

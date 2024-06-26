@@ -330,6 +330,17 @@ services:
     depends_on:
       - postgres
 
+  backtest-service:
+    <<: *common-service
+    command: uvicorn backtest_service:app --host 0.0.0.0 --reload --port 8002
+    volumes:
+      - ./backtest_service/backtest_service.py:/app/backtest_service.py
+      - ./backtest_service/strategies:/app/strategies
+      - ./backtest_service/backtesting:/app/backtesting
+      - ./backtest_service/fetch_data:/app/fetch_data
+    ports:
+      - 8002:8002
+
   topic_creator:
     image: base-image-gold:latest
     volumes:
@@ -338,10 +349,11 @@ services:
     restart: "no"  # Ensure it only runs once
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      TOPIC_NAMES: "stock_data, backtest_results, user_registrations"
+      TOPIC_NAMES: "stock_data, backtest_results, user_registrations, scenes_topic"
       PARTITIONS: 1
       REPLICATION_FACTOR: 1
 
+  
 
 volumes:
   postgres-db-volume:
