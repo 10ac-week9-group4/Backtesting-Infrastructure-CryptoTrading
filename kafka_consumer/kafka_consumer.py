@@ -9,12 +9,13 @@ load_dotenv()
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")
 DATABASE_SERVICE_URL = os.getenv("DATABASE_SERVICE_URL", "ws://database-service:8001")
+BACKTEST_SERVICE_URL = os.getenv("BACKTEST_SERVICE_URL", "ws://backtest-service:8002")
 
 endpoint_mapping = {
   "stock_data": f"{DATABASE_SERVICE_URL}/ws/stock_data",
   "user_registrations": f"{DATABASE_SERVICE_URL}/ws/user_registrations",
   "backtest_results": f"{DATABASE_SERVICE_URL}/ws/backtest_results",
-  "scenes_topic": f"{DATABASE_SERVICE_URL}/ws/scenes"
+  "scenes_topic": f"{BACKTEST_SERVICE_URL}/ws/scenes"
 }
 
 def create_kafka_consumer(topic_name, kafka_bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS, group_id_suffix='consumer'):

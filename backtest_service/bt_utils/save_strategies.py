@@ -5,8 +5,8 @@ import os
 from database_models import init_db, Dim_Strategy, Fact_Backtests, Dim_Scene, Dim_Date
 from datetime import datetime
 
-os.chdir("../../../")
-from src.backtesting.run_backtest import prepare_and_run_backtest, prepare_and_run_many_backtests
+# os.chdir("../../../")
+# from src.backtesting.run_backtest import prepare_and_run_backtest, prepare_and_run_many_backtests
 
 
 
