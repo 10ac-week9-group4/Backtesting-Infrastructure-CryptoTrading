@@ -1,0 +1,42 @@
+# Split data into training and testing
+train_size = int(len(df) * 0.70)
+train, test = df.iloc[:train_size], df.iloc[train_size:]
+
+# Scale data
+scaler = MinMaxScaler(feature_range=(0,1))
+train_scaled = scaler.fit_transform(train[['Close', 'Sentiment_Score']])
+test_scaled = scaler.transform(test[['Close', 'Sentiment_Score']])
+
+# Create dataset for LSTM
+def create_dataset(data, time_step=100):
+    x, y = [], []
+    for i in range(time_step, len(data)):
+        x.append(data[i-time_step:i, :])
+        y.append(data[i, 0])
+    return np.array(x), np.array(y)
+
+# Prepare training and testing datasets
+x_train, y_train = create_dataset(train_scaled)
+x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
+
+x_test, y_test = create_dataset(test_scaled)
+x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
+
+# Build LSTM model
+model = Sequential()
+model.add(LSTM(128, return_sequences=True, input_shape=(x_train.shape[1], 1)))
+model.add(Dropout(0.2))
+model.add(LSTM(64, return_sequences=False))
+model.add(Dropout(0.2))
+model.add(Dense(1))
+
+model.compile(optimizer='adam', loss='mean_squared_error', metrics=[tf.keras.metrics.MeanAbsoluteError()])
+
+# Train model
+model.fit(x_train, y_train, batch_size=32, epochs=50)
+
+# Save model
+model.save('model_with_sentiment.h5')
+
+# Predictions
+y_pred = model.predict(x_test)
