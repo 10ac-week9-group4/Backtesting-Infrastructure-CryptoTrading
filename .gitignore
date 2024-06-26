@@ -3,7 +3,9 @@ node_modules
 myenv
 .env
 
-client/*
+# client/*
+
+myenv
 
 # AIRFLOW
 logs

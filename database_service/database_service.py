@@ -56,3 +56,32 @@ async def websocket_user_registrations(websocket: WebSocket):
     finally:
         if not websocket.client_state == WebSocketState.DISCONNECTED:
             await websocket.close()
+
+@app.websocket("/ws/scenes")
+async def websocket_scene_handling(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        async for message_str in websocket.iter_text():
+            # Parse the incoming scene message
+            scene_message = json.loads(message_str)
+            logger.info(f"Received scene data: {scene_message}")
+            try:
+                # Use the initialized DB session
+                db = db_session()
+                # Process the scene: Check if results exist or run backtests
+                # Assuming save_scene and get_or_run_backtests are defined in save_strategies.py
+                # and they handle the logic of saving the scene and either fetching existing results
+                # or running backtests and then saving those results.
+                scene_id = save_scene(scene_message, db)
+                results = get_or_run_backtests(scene_id, db)
+                # Send back the results through the WebSocket
+                await websocket.send_text(json.dumps(results))
+                # Close the session
+                db.close()
+            except Exception as e:
+                logger.error(f"Error processing scene: {e}")
+                # Optionally, send back an error message
+                await websocket.send_text(json.dumps({"error": str(e)}))
+    finally:
+        if not websocket.client_state == WebSocketState.DISCONNECTED:
+            await websocket.close()

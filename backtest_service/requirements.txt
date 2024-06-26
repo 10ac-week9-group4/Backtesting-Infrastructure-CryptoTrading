@@ -1,0 +1,3 @@
+backtrader
+backtrader[plotting]
+matplotlib

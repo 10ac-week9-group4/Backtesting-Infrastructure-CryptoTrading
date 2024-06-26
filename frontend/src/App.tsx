@@ -12,6 +12,9 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Tables from './pages/Tables';
 import DefaultLayout from './layout/DefaultLayout';
+import register from './components/Register';
+import RunBacktest from './components/run_backtest';
+import CriptoList from './components/CriptoListfrontendfrontend';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -83,7 +86,35 @@ function App() {
               <Chart />
             </>
           }
-        />
+        
+         />
+        <Route
+          path="/register"
+          element={
+            <>
+              <PageTitle title="User register | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+              <Register />
+            </>
+          }
+          />
+        <Route
+          path="/RunBacktest"
+          element={
+            <>
+              <PageTitle title="backtest results | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+              <run_backtest />
+            </>
+          }
+            />
+        <Route
+          path="/CriptoList"
+          element={
+            <>
+              <PageTitle title="cripto Table | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+              <CriptoList />
+            </>
+          }
+           />
         <Route
           path="/auth/signin"
           element={
