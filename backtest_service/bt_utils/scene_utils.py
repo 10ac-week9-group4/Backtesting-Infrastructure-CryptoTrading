@@ -13,8 +13,8 @@ def generate_scene_key(scene):
               "commission": 0.005,
               "start_date": "2020-01-01",
               "end_date": "2021-01-01",
-              "indicator": "SMACrossOver",
-              "indicator_params": {
+              "strategy": "SMACrossOver",
+              "parameters": {
                   "fast_period": 15,
                   "slow_period": 200
               }

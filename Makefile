@@ -1,10 +1,13 @@
-.PHONY: run-dev down clean build up build-pipeline run test test_db create_trading_database
+.PHONY: run-dev down clean build up build-pipeline run test test_db create_trading_database build-base-image build-base-image-restart d-% up-% run-% logs-% build-% bash-% save-strategies create-superuser drop-user create-db drop-db init-db build-all
 
 # Makefile for managing PostgreSQL users in Docker
 
 POSTGRES_CONTAINER := postgres  # Adjust if your container name is different
 POSTGRES_MAIN_USER := airflow
 POSTGRES_USER := postgres
+
+save-strategies:
+	cd backtest_service && python scripts/save_strategies.py
 
 create-superuser:
 	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_MAIN_USER) -c "\

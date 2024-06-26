@@ -11,6 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:billna1@localhos
 # Function to initialize the database
 def init_db():
   engine = create_engine(DATABASE_URL)
+  # Base.metadata.clear()
   Base.metadata.create_all(engine)
   return scoped_session(sessionmaker(bind=engine))
 
@@ -55,11 +56,10 @@ class Dim_Strategy(Base):
   __tablename__ = 'dim_strategy'
   StrategyID = Column(Integer, primary_key=True, autoincrement=True)
   StrategyIdentifier = Column(String(100))
-  StrategyName = Column(String(100))
-  StrategyDescription = Column(String(255))
-  Indicator = Column(String(100))  # New column for the indicator
-  IndicatorParameterNames = Column(JSON)  # New column for storing parameter names as a JSON list
-  # Relationships
+  StrategyName = Column(String(50))
+  StrategyDescription = Column(String(500))
+  ParametersNames= Column(JSON)  # Modified to store specific parameter values for the strategy
+   # Relationships
   trades = relationship("Fact_Trades", backref="dim_strategy")
   scenes = relationship("Dim_Scene", backref="dim_strategy")
 
