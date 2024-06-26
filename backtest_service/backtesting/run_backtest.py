@@ -2,6 +2,7 @@ from datetime import datetime
 from backtrader.analyzers import Returns,DrawDown,SharpeRatio,TradeAnalyzer
 import yfinance as yf
 import backtrader as bt
+import os
 
 from backtest_service.strategies import SmaCrossOver, SMA_RSI, SMA, Test_Strategy
 
@@ -49,11 +50,12 @@ def prepare_cerebro(asset,strategy,data_path,start_date:str,end_date:str=datetim
     if end_date is None:
         end_date = datetime.now().strftime("%Y-%m-%d")
 
-    isExist = os.path.exists(data_path)
-    if not isExist:
-        data = yf.download(asset,start_date,end=end_date)
+    # isExist = os.path.exists(data_path)
+    # if not isExist:
+    #     data = yf.download(asset,start_date,end=end_date)
         # data.to_csv(data_path)
-    
+    data = yf.download(asset,start_date,end=end_date)
+
     # Use PandasData to load DataFrame directly
     datafeed = bt.feeds.PandasData(
                     dataname=data,

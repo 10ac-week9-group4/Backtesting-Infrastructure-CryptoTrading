@@ -6,7 +6,7 @@ import coloredlogs
 from starlette.websockets import WebSocketState
 from sqlalchemy.exc import SQLAlchemyError
 from database_models import init_db
-from backtest_service.bt_utils import get_strategy_by_name, get_scene_by_key, save_scene, get_existing_backtest_result, execute_single_backtest
+from backtest_service.bt_utils import get_strategy_by_name, get_scene_by_key, save_scene, get_existing_backtest_result, execute_single_backtest, save_single_backtest_result
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -66,10 +66,11 @@ def handle_scene(scene_message: dict, session):
                 logger.error(f"Failed to save scene: {e}")
                 return {"error": "Failed to save scene to database."}
 
-        # Run the backtests
+        # Run the backtests and save to database then send to kafka
         try:
             results = execute_single_backtest(scene_message, scene.SceneID, session)
             print("Results: ", results)
+            save_single_backtest_result(scene.SceneID, results, session)
         except SQLAlchemyError as e:
             logger.error(f"Failed to run backtests: {e}")
             return {"error": "Failed to run backtests."}
