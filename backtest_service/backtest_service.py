@@ -4,8 +4,9 @@ import json
 import logging
 import coloredlogs
 from starlette.websockets import WebSocketState
+from sqlalchemy.exc import SQLAlchemyError
 from database_models import init_db
-from backtest_service.bt_utils import get_strategy_by_name
+from backtest_service.bt_utils import get_strategy_by_name, get_scene_by_key, save_scene
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -26,12 +27,57 @@ session = init_db()
 def handle_scene(scene_message: dict, session):
     """
     Process the scene data.
+    1. Get the strategy for the scene from the database.
+    2. Save the scene data to the database.
+        - If the scene data already exists, fetch the backtest results.
+        - If the scene data is new, run backtests and save the results.
+    3. Send back the results through the WebSocket.
+    4. Close the session.
     """
-    print("Processing scene...")
-    # Process the scene: Check if results exist or run backtests
-    # Get the strategy for the scene from db
-    existing_strategy = get_strategy_by_name(scene_message["indicator"], session)
-    print(existing_strategy)
+    
+    try:
+        print("Processing scene...")
+        # Process the scene: Check if results exist or run backtests
+        # Get the strategy for the scene from db
+        try:
+            existing_strategy = get_strategy_by_name(scene_message["strategy"], session)
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to fetch strategy: {e}")
+            return {"error": "Failed to fetch strategy from database."}
+        
+        if not existing_strategy:
+            logger.error("Strategy not found.")
+            return {"error": "Strategy not found."}
+
+        strategy_id = existing_strategy.StrategyID
+
+        try:
+            scene = get_scene_by_key(session, scene_message)
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to fetch scene: {e}")
+            return {"error": "Failed to fetch scene from database."}
+
+        if scene is None:
+            logger.info("Scene not found in DB. Saving scene...")
+            try:
+                scene = save_scene(scene_message, strategy_id, session)
+            except SQLAlchemyError as e:
+                logger.error(f"Failed to save scene: {e}")
+                return {"error": "Failed to save scene to database."}
+
+        print("Scene FROM DB: ", scene)
+
+        # Here you would continue with the logic to get or run backtests,
+        # which should also include error handling similar to the above.
+
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
+        return {"error": "An unexpected error occurred during scene processing."}
+    finally:
+        # Assuming session.close() is the correct method to close your session
+        # Adjust according to your session management
+        session.close()
+
     # Assuming save_scene and get_or_run_backtests are defined in save_strategies.py
     # and they handle the logic of saving the scene and either fetching existing results
     # or running backtests and then saving those results.
@@ -41,7 +87,6 @@ def handle_scene(scene_message: dict, session):
     # await websocket.send_text(json.dumps(results))
     # # Close the session
     # db.close()
-    pass
 
 @app.websocket("/ws/scenes")
 async def websocket_scene_handling(websocket: WebSocket):

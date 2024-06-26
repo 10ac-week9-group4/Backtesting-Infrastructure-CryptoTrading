@@ -53,20 +53,3 @@ def save_scene(scene, strategy_id, session):
     return new_scene
   else:
     return existing_scene
-
-
-# TODO Change scene to look like this:      e.g. {
-            #   "asset": "AAPL",
-            #   "cash": 100000,
-            #   "commission": 0.005,
-            #   "start_date": "2020-01-01",
-            #   "end_date": "2021-01-01",
-            #   "parameters": {
-            #     "indicator": "SMACrossOver",
-            #     "indicator_params": {
-            #       "fast_period": 15,
-            #       "slow_period": 200
-            #     }
-            #   }
-            # }
-          
