@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, HTTPException, Depends, status
 from pydantic import BaseModel, Field
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 import logging
@@ -30,6 +31,21 @@ USER_LOGIN_TOPIC = "user_login"
 
 app = FastAPI()
 
+# Define a list of allowed origins for CORS
+origins = [
+    "http://localhost:3000",  # Add other origins as needed
+]
+
+# Add CORSMiddleware to the application instance
+app.add_middleware(
+    CORSMiddleware,
+    # allow_origins="origins",  # Allows specified origins
+    allow_origins="*",
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 # Set up logging
 coloredlogs.install()  # install a handler on the root logger
 
@@ -55,7 +71,13 @@ credentials_exception = HTTPException(
 class User(BaseModel):
     username: str = Field(..., min_length=3, max_length=50, example="johndoe")
     email: str = Field(..., example="johndoe@example.com")
-    password: str = Field(..., min_length=8)
+    password: str = Field(
+        ...,
+        min_length=8,
+        error_messages={
+            "min_length": "Password must be at least 8 characters long",
+        },
+    )
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
