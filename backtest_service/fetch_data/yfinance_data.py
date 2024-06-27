@@ -48,6 +48,6 @@ def fetch_and_send_stock_data(symbol, period="1d", max_retries=2):
                     print("Max retries reached. Failed to send data to Kafka.")
 
 # Example usage for a longer period, e.g., 5 days
-fetch_and_send_stock_data("AAPL", "5d")
+# fetch_and_send_stock_data("AAPL", "5d")
 
 # TODO - split the fetch_and_send_stock_data function into two separate functions

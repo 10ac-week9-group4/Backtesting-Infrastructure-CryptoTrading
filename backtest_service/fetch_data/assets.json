@@ -1,0 +1,13 @@
+[
+  {"ticker": "AAPL", "name": "Apple Inc.", "type": "Stock"},
+  {"ticker": "MSFT", "name": "Microsoft Corporation", "type": "Stock"},
+  {"ticker": "GOOGL", "name": "Alphabet Inc.", "type": "Stock"},
+  {"ticker": "AMZN", "name": "Amazon.com, Inc.", "type": "Stock"},
+  {"ticker": "Meta", "name": "Meta Platforms, Inc.", "type": "Stock"},
+  {"ticker": "TSLA", "name": "Tesla, Inc.", "type": "Stock"},
+  {"ticker": "BTC", "name": "Bitcoin", "type": "Cryptocurrency"},
+  {"ticker": "ETH", "name": "Ethereum", "type": "Cryptocurrency"},
+  {"ticker": "DOGE", "name": "Dogecoin", "type": "Cryptocurrency"},
+  {"ticker": "XRP", "name": "Ripple", "type": "Cryptocurrency"},
+  {"ticker": "NVDA", "name": "Nvidia", "type": "Stock"}
+]
