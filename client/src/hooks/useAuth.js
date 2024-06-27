@@ -11,11 +11,11 @@ const useAuth = () => {
     if (token) {
       try {
         const decoded = jwtDecode(token); // Decode the token
-        console.log(decoded)
+        // console.log(decoded)
         // Check if the token is valid and the username matches
         const isTokenValid = decoded.exp * 1000 > Date.now(); // Check token expiration
         const isUsernameMatch = decoded.sub === username; // Compare usernames
-        console.log(isTokenValid, isUsernameMatch)
+        // console.log(isTokenValid, isUsernameMatch)
 
         setIsAuthenticated(isTokenValid && isUsernameMatch);
       } catch (error) {

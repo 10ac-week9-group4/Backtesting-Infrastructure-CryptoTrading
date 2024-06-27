@@ -1,6 +1,9 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+import hashlib
+import json
+
 
 import os
 # import sys
@@ -24,3 +27,27 @@ def get_user_by_username(username: str):
   finally:
     # Manually close the db to ensure cleanup
     next(db_gen, None)
+
+def generate_scene_key(scene):
+  """
+  Generate a unique scene key based on the scene parameters.
+
+  :param scene: A dictionary containing the scene parameters.
+      e.g. {
+              "asset": "AAPL",
+              "cash": 100000,
+              "commission": 0.005,
+              "start_date": "2020-01-01",
+              "end_date": "2021-01-01",
+              "strategy": "SMACrossOver",
+              "parameters": {
+                  "fast_period": 15,
+                  "slow_period": 200
+              }
+            }
+          
+            
+  :return: A unique scene key (hashed string) e.g "a1b2c3d4e5f6g7h8i9j0"
+  """
+  serialized_params = json.dumps(scene, sort_keys=True)
+  return hashlib.sha256(serialized_params.encode()).hexdigest()

@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI, HTTPException, Depends, status
 from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 import logging
@@ -210,3 +211,25 @@ async def backtest(parameters: Parameters):
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to send message to Kafka.")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error sending message to Kafka: {e}")
+    
+
+@app.get("/backtest_results/{scene_id}")
+async def get_backtest_results(scene_id: str):
+    print("scene_id", scene_id)
+    """
+    Endpoint to fetch backtest results for a specific scene ID.
+
+    Args:
+        scene_id: The unique identifier for the backtest scene.
+
+    Returns:
+        StreamingResponse: A stream of backtest results in Server-Sent Events (SSE) format.
+    """
+
+    def generate_results():
+        """Generator function to yield backtest results from Kafka."""
+        for message in create_and_consume_messages("backtest_results"):
+            if message.get("scene_id") == scene_id:
+                yield f"data: {json.dumps(message)}\n\n"  # SSE format
+
+    return StreamingResponse(generate_results(), media_type="text/event-stream")

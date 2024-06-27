@@ -1,3 +1,5 @@
+import BactestResults from "./BacktestResults"
+import Results from "./Results"
 
 export default function BacktestForm() {
 	return (
@@ -183,6 +185,8 @@ export default function BacktestForm() {
 					</div>
 				</form>
 
+
+
 				<div className="mt-5 px-4 sm:px-0 sm:col-span-1">
 					<h2 className="text-base font-semibold leading-7 text-gray-900">
 						Description
@@ -196,6 +200,8 @@ export default function BacktestForm() {
 					</p>
 				</div>
 			</div>
+
+			<Results sceneId="cf6eb668e2fa1ca1d842b05b4fcdfeb7433de98d92940a6d3b5ab81f03e433df" />
 		</div>
 	)
 }

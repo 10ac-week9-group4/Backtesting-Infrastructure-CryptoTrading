@@ -2,7 +2,7 @@ import { Fragment, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth'; // Import the useAuth hook
 // import BacktestForm from './backtests/BacktestFormExample2';
-import BacktestForm from './backtests/two_column_with_cards';
+import BacktestForm from './backtests/BacktestForm';
 import {
   Dialog,
   DialogPanel,
