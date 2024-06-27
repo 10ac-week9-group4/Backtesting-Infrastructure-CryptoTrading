@@ -39,7 +39,7 @@ const teams = [
 ]
 const userNavigation = [
   { name: 'Your profile', href: '#' },
-  { name: 'Sign out', href: '#' },
+  { name: 'Sign out', href: '/logout' },
 ]
 
 function classNames(...classes) {
@@ -49,6 +49,10 @@ function classNames(...classes) {
 const isAuthenticated = () => {
   const token = localStorage.getItem('token');
   return !!token; // Convert to boolean: true if token exists, false otherwise
+}
+
+const logoutUser = () => {
+  localStorage.removeItem('token');
 }
 
 export default function Dashboard() {
@@ -355,6 +359,7 @@ export default function Dashboard() {
                           {({ focus }) => (
                             <a
                               href={item.href}
+                              onClick={item.href === '/logout' ? logoutUser : null}
                               className={classNames(
                                 focus ? 'bg-gray-50' : '',
                                 'block px-3 py-1 text-sm leading-6 text-gray-900'
