@@ -1,9 +1,8 @@
-import BactestResults from "./BacktestResults"
-import Results from "./Results"
+import BactestResults from "./BacktestResults";
 
 export default function BacktestForm() {
 	return (
-		<div className="space-y-10 divide-y divide-gray-900/10">
+		<div className="space-y-10">
 			<div className="mt-2 sm:row-span-2">
 				<div className="sm:col-span-3 relative">
 					<h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -14,8 +13,8 @@ export default function BacktestForm() {
 					</p>
 				</div>
 			</div>
-			<div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-4">
-				<form className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
+			<div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-2">
+				<form className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-1">
 					<div className="px-4 py-6 sm:p-8">
 						<div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 							<div className="sm:col-span-3">
@@ -187,21 +186,10 @@ export default function BacktestForm() {
 
 
 
-				<div className="mt-5 px-4 sm:px-0 sm:col-span-1">
-					<h2 className="text-base font-semibold leading-7 text-gray-900">
-						Description
-					</h2>
-					<p className="mt-1 text-sm leading-6 text-gray-600">
-						This strategy uses a simple moving average crossover to determine
-						when to buy and sell assets. It uses two moving averages, a short
-						window and a long window. When the short window crosses above the
-						long window, it generates a buy signal. When the short window
-						crosses below the long window, it generates a sell signal.{' '}
-					</p>
-				</div>
+				<BactestResults />
 			</div>
 
-			<Results sceneId="cf6eb668e2fa1ca1d842b05b4fcdfeb7433de98d92940a6d3b5ab81f03e433df" />
+			
 		</div>
 	)
 }
