@@ -1,8 +1,8 @@
 import { Fragment, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth'; // Import the useAuth hook
-import BacktestForm from './backtests/BacktestForm';
-import Example from './backtests/two_column_with_cards';
+// import BacktestForm from './backtests/BacktestFormExample2';
+import BacktestForm from './backtests/two_column_with_cards';
 import {
   Dialog,
   DialogPanel,
@@ -397,7 +397,7 @@ export default function Dashboard() {
           <main className="py-10">
             <div className="px-4 sm:px-6 lg:px-8">
               {/* THE MAIN CONTENT GOES HERE */}
-              <Example />
+              <BacktestForm />
             </div>
           </main>
         </div>

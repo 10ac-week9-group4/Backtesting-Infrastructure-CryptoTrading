@@ -1,20 +1,5 @@
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
-*/
-import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 
-export default function Example() {
+export default function BacktestForm() {
 	return (
 		<div className="space-y-10 divide-y divide-gray-900/10">
 			<div className="mt-2 sm:row-span-2">
@@ -27,11 +12,11 @@ export default function Example() {
 					</p>
 				</div>
 			</div>
-			<div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-5">
+			<div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-4">
 				<form className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
 					<div className="px-4 py-6 sm:p-8">
 						<div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-							<div className="sm:col-span-2">
+							<div className="sm:col-span-3">
 								<label
 									htmlFor="country"
 									className="block text-sm font-medium leading-6 text-gray-900"
@@ -52,7 +37,7 @@ export default function Example() {
 								</div>
 							</div>
 
-							<div className="sm:col-span-2 sm:col-start-1">
+							<div className="sm:col-span-3">
 								<label
 									htmlFor="country"
 									className="block text-sm font-medium leading-6 text-gray-900"
@@ -73,18 +58,108 @@ export default function Example() {
 								</div>
 							</div>
 
-							<div className="sm:col-span-1 sm:col-start-1">
+							<div className="sm:col-span-3">
 								<label
-									htmlFor="city"
+									htmlFor="start_date"
 									className="block text-sm font-medium leading-6 text-gray-900"
 								>
-									City
+									Start Date
 								</label>
 								<div className="mt-2">
 									<input
 										type="text"
-										name="city"
-										id="city"
+										name="start_date"
+										id="start_date"
+										autoComplete="address-level2"
+										className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+									/>
+								</div>
+							</div>
+
+              <div className="sm:col-span-3">
+								<label
+									htmlFor="end_date"
+									className="block text-sm font-medium leading-6 text-gray-900"
+								>
+									End Date
+								</label>
+								<div className="mt-2">
+									<input
+										type="text"
+										name="end_date"
+										id="end_date"
+										autoComplete="address-level2"
+										className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+									/>
+								</div>
+							</div>
+
+              <div className="sm:col-span-3 sm:col-start-1">
+								<label
+									htmlFor="cash"
+									className="block text-sm font-medium leading-6 text-gray-900"
+								>
+									Cash
+								</label>
+								<div className="mt-2">
+									<input
+										type="text"
+										name="cash"
+										id="cash"
+										autoComplete="address-level2"
+										className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+									/>
+								</div>
+							</div>
+
+              <div className="sm:col-span-3">
+								<label
+									htmlFor="commission"
+									className="block text-sm font-medium leading-6 text-gray-900"
+								>
+									Commission
+								</label>
+								<div className="mt-2">
+									<input
+										type="text"
+										name="commission"
+										id="commission"
+										autoComplete="address-level2"
+										className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+									/>
+								</div>
+							</div>
+
+              <div className="sm:col-span-3">
+								<label
+									htmlFor="end_date"
+									className="block text-sm font-medium leading-6 text-gray-900"
+								>
+									Parameter: Short Window
+								</label>
+								<div className="mt-2">
+									<input
+										type="text"
+										name="end_date"
+										id="end_date"
+										autoComplete="address-level2"
+										className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+									/>
+								</div>
+							</div>
+
+              <div className="sm:col-span-3">
+								<label
+									htmlFor="end_date"
+									className="block text-sm font-medium leading-6 text-gray-900"
+								>
+									Parameter: Long Window
+								</label>
+								<div className="mt-2">
+									<input
+										type="text"
+										name="end_date"
+										id="end_date"
 										autoComplete="address-level2"
 										className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
 									/>
@@ -108,7 +183,7 @@ export default function Example() {
 					</div>
 				</form>
 
-				<div className="mt-5 px-4 sm:px-0 sm:col-span-2">
+				<div className="mt-5 px-4 sm:px-0 sm:col-span-1">
 					<h2 className="text-base font-semibold leading-7 text-gray-900">
 						Description
 					</h2>
