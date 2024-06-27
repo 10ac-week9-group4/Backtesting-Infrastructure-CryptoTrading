@@ -10,7 +10,7 @@ from fetch_data import fetch_and_send_stock_data
 
 
 with DAG(
-    dag_id="fetch_stock_data",
+    dag_id="example_fetch_stock_data",
     description="A DAG to fetch and send stock data to Kafka",
     start_date=datetime(2024, 6, 21),
     schedule_interval="@daily",

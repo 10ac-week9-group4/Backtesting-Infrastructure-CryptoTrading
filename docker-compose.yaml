@@ -31,7 +31,7 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-./airflow}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-./airflow}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-./airflow}/plugins:/opt/airflow/plugins
-    - ./backtest_service/fetch_data:/opt/airflow/fetch_data
+    - ./backtest_service:/opt/airflow/backtest_service
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
