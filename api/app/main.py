@@ -69,6 +69,8 @@ credentials_exception = HTTPException(
 
 # Pydantic models for data validation
 class User(BaseModel):
+    first_name: str = Field(..., min_length=1, max_length=50, example="John")
+    last_name: str = Field(..., min_length=1, max_length=50, example="Doe")
     username: str = Field(..., min_length=3, max_length=50, example="johndoe")
     email: str = Field(..., example="johndoe@example.com")
     password: str = Field(
@@ -149,6 +151,8 @@ async def register(user: User):
     hashed_password = pwd_context.hash(user.password)
     # Create a new user dictionary
     user_data = {
+        "first_name": user.first_name,
+        "last_name": user.last_name,
         "username": user.username,
         "email": user.email,
         "hashed_password": hashed_password  # Store the hashed password
