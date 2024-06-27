@@ -1,13 +1,24 @@
 import axios from 'axios'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+
+import { isAuthenticated } from '../../utils/auth-utils'
 
 export default function Login() {
 	const [errors, setErrors] = useState([])
 
-  const navigate = useNavigate()
+	const navigate = useNavigate()
+
+  useEffect(() => {
+    // check authentication on component mount
+    if (isAuthenticated()) {
+      // redirect to login page if not authenticated
+      navigate('/')
+    }
+  }, [])
 
 	const handleSubmit = async e => {
+
 		e.preventDefault()
 		setErrors([])
 		console.log('Form Submitted')
@@ -32,6 +43,7 @@ export default function Login() {
 
 			// Save the token in the local storage
 			localStorage.setItem('token', response.data.access_token)
+			localStorage.setItem('username', username); // Save username
 
 			// Redirect the user to the dashboard
 			navigate('/')

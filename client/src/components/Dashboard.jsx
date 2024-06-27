@@ -1,5 +1,8 @@
 import { Fragment, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import useAuth from '../hooks/useAuth'; // Import the useAuth hook
+import BacktestForm from './backtests/BacktestForm';
+import Example from './backtests/two_column_with_cards';
 import {
   Dialog,
   DialogPanel,
@@ -25,7 +28,7 @@ import {
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 
 const navigation = [
-  { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
+  { name: 'Dashboard', href: '#', icon: HomeIcon, current: false },
   { name: 'Team', href: '#', icon: UsersIcon, current: false },
   { name: 'Projects', href: '#', icon: FolderIcon, current: false },
   { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
@@ -46,29 +49,41 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const isAuthenticated = () => {
-  const token = localStorage.getItem('token');
-  return !!token; // Convert to boolean: true if token exists, false otherwise
-}
+// const isAuthenticated = () => {
+//   const token = localStorage.getItem('token');
+//   return !!token; // Convert to boolean: true if token exists, false otherwise
+// }
 
 const logoutUser = () => {
   localStorage.removeItem('token');
+  localStorage.removeItem('username');
 }
 
 export default function Dashboard() {
+  const [sideNavs, setSideNavs] = useState(navigation)
 
   const navigate = useNavigate()
 
-  useEffect(() => {
-    // check authentication on component mount
-    if (!isAuthenticated()) {
-      // redirect to login page if not authenticated
-      navigate('/login')
-    }
-  }, [])
-  
+  const isAuthenticated = useAuth(); // Use the hook to check auth status
 
+    // check authentication
+  if (!isAuthenticated) {
+    // redirect to login page if not authenticated
+    navigate('/login')
+  }
+
+  const username = localStorage.getItem('username');
+  
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const handleSideNavClick = (currentNav) => {
+    setSideNavs(
+      sideNavs.map((item) => ({
+        ...item,
+        current: item.name === currentNav.name,
+      }))
+    )
+  }
 
   return (
     <>
@@ -132,10 +147,11 @@ export default function Dashboard() {
                       <ul role="list" className="flex flex-1 flex-col gap-y-7">
                         <li>
                           <ul role="list" className="-mx-2 space-y-1">
-                            {navigation.map((item) => (
+                            {sideNavs.map((item) => (
                               <li key={item.name}>
                                 <a
                                   href={item.href}
+                                  onClick={() => handleSideNavClick()}
                                   className={classNames(
                                     item.current
                                       ? 'bg-gray-50 text-indigo-600'
@@ -335,12 +351,13 @@ export default function Dashboard() {
                     <span className="sr-only">Open user menu</span>
                     <img
                       className="h-8 w-8 rounded-full bg-gray-50"
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                      src="https://i.pinimg.com/564x/99/bc/e0/99bce004100c001d7f48c1e6e6692945.jpg"
+                      // src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                       alt=""
                     />
                     <span className="hidden lg:flex lg:items-center">
                       <span className="ml-4 text-sm font-semibold leading-6 text-gray-900" aria-hidden="true">
-                        Tom Cook
+                        {username}
                       </span>
                       <ChevronDownIcon className="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
                     </span>
@@ -378,7 +395,10 @@ export default function Dashboard() {
           </div>
 
           <main className="py-10">
-            <div className="px-4 sm:px-6 lg:px-8">{/* Your content */}</div>
+            <div className="px-4 sm:px-6 lg:px-8">
+              {/* THE MAIN CONTENT GOES HERE */}
+              <Example />
+            </div>
           </main>
         </div>
       </div>

@@ -106,9 +106,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 @app.post("/token")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
+        print(form_data.username)
         # Query the database for the user
         user = get_user_by_username(form_data.username)
-        username = user.UserName
+        print("USER", user)
         # logger.info("User: %s", user.UserName)
         
         if not user:
@@ -125,6 +126,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             raise HTTPException(status_code=400, detail="Incorrect username or password")
 
         # Create and return JWT token
+
+        username = user.UserName
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": username}, expires_delta=access_token_expires
