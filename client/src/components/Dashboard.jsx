@@ -1,18 +1,5 @@
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
-*/
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogPanel,
@@ -59,7 +46,24 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
+const isAuthenticated = () => {
+  const token = localStorage.getItem('token');
+  return !!token; // Convert to boolean: true if token exists, false otherwise
+}
+
 export default function Dashboard() {
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    // check authentication on component mount
+    if (!isAuthenticated()) {
+      // redirect to login page if not authenticated
+      navigate('/login')
+    }
+  }, [])
+  
+
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (

@@ -29,6 +29,13 @@ export default function Login() {
 			})
 
 			console.log(response)
+
+			// Save the token in the local storage
+			localStorage.setItem('token', response.data.access_token)
+
+			// Redirect the user to the dashboard
+			navigate('/')
+
 		} catch (err) {
 			console.log(err.response.data)
 
