@@ -6,18 +6,31 @@ function Results({ sceneId }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const eventSource = new EventSource(`/backtest_results/${sceneId}`);
+    console.log(sceneId)
+    const eventSource = new EventSource(`http://localhost:8089/backtest_results/${sceneId}`);
+    // console.log(eventSource)
     
     eventSource.onmessage = (event) => {
       const newResult = JSON.parse(event.data);
       setResults(newResult); 
       setIsLoading(false); 
+      console.log(newResult)
+      eventSource.onmessage = (event) => {
+        if (event.data === "No results found for scene_id: <your_scene_id>") {
+          console.log("No results found")
+            // Display a "No results found" message to the user
+        } else {
+            const result = JSON.parse(event.data);
+            console.log("RESULT", result)
+            // Process and display the backtest result in the UI
+        }
+    };
     };
 
     eventSource.onerror = (error) => {
       console.error('Error receiving backtest results:', error);
       setError(error);
-      setIsLoading(false); 
+      setIsLoading(false);
     };
 
     return () => {

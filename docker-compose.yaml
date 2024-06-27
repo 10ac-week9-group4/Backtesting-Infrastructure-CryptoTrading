@@ -314,6 +314,8 @@ services:
     command: sh -c "/app/scripts/wait-for-it.sh kafka:9092 -- ls *.py | entr -n -r python kafka_consumer.py"
     volumes:
       - ./kafka_consumer/kafka_consumer.py:/app/kafka_consumer.py
+    ports:
+      - 4000:4000
     depends_on:
       - kafka
       - postgres

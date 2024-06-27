@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth'; // Import the useAuth hook
 // import BacktestForm from './backtests/BacktestFormExample2';
 import BacktestForm from './backtests/BacktestForm';
+import KafkaConsumerComponent from './backtests/KafkaConsumerComponent';
 import {
   Dialog,
   DialogPanel,
@@ -397,7 +398,7 @@ export default function Dashboard() {
           <main className="py-10">
             <div className="px-4 sm:px-6 lg:px-8">
               {/* THE MAIN CONTENT GOES HERE */}
-              <BacktestForm />
+              <KafkaConsumerComponent />
             </div>
           </main>
         </div>

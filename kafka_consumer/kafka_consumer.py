@@ -10,12 +10,13 @@ load_dotenv()
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")
 DATABASE_SERVICE_URL = os.getenv("DATABASE_SERVICE_URL", "ws://database-service:8001")
 BACKTEST_SERVICE_URL = os.getenv("BACKTEST_SERVICE_URL", "ws://backtest-service:8002")
+API_SERVICE_URL = os.getenv("API_SERVICE_URL", "ws://api:8000")
 
 endpoint_mapping = {
   "stock_data": f"{DATABASE_SERVICE_URL}/ws/stock_data",
   "user_registrations": f"{DATABASE_SERVICE_URL}/ws/user_registrations",
-  "backtest_results": f"{DATABASE_SERVICE_URL}/ws/backtest_results",
-  "scenes_topic": f"{BACKTEST_SERVICE_URL}/ws/scenes"
+  "backtest_results": f"{API_SERVICE_URL}/ws/backtest_results",
+  "scenes_topic": f"{API_SERVICE_URL}/ws/scenes"
 }
 
 def create_kafka_consumer(topic_name, kafka_bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS, group_id_suffix='consumer'):
@@ -61,7 +62,7 @@ async def forward_message_to_service(topic, message, max_retries=5, retry_delay=
       return  # Exit function after successful sending
     except Exception as e:
       print(f"Attempt {attempt + 1}: Failed to forward message to {endpoint}, Error: {e}")
-      attempt += 1
+      attempt += 1  
       await asyncio.sleep(retry_delay)  # Wait before retrying
 
   print(f"Failed to forward message to {endpoint} after {max_retries} attempts.")
