@@ -326,7 +326,7 @@ services:
     ports:
       - 8001:8001
     volumes:
-      - ./database_service/database_service.py:/app/database_service.py
+      - ./database_service:/app/database_service/
       - ./alembic:/app/alembic
     depends_on:
       - postgres
