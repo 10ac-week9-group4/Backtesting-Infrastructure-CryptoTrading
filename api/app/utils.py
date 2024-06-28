@@ -8,7 +8,7 @@ import json
 import os
 # import sys
 # sys.path.append(os.path.abspath(os.path.join('../', 'app')))
-from database_models.models import Dim_Users, init_db  # Adjust the import path as necessary
+from database_models.models import Dim_Users, Dim_Assets, init_db  # Adjust the import path as necessary
 
 # Dependency to get DB session
 def get_db():
@@ -51,3 +51,13 @@ def generate_scene_key(scene):
   """
   serialized_params = json.dumps(scene, sort_keys=True)
   return hashlib.sha256(serialized_params.encode()).hexdigest()
+
+# get all the assets in the database
+def fetch_all_assets_from_db():
+  db_gen = get_db()
+  db = next(db_gen)
+  try:
+    return db.query(Dim_Assets).all()
+  finally:
+    # Manually close the db to ensure cleanup
+    next(db_gen, None)

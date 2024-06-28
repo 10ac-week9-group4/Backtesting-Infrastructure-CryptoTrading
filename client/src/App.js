@@ -4,6 +4,7 @@ import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import Dashboard from './components/Dashboard';
 // import useAuth from './hooks/useAuth'; // Import the useAuth hook
+import BacktestResults from './components/backtests/BacktestResults';
 
 function App() {
   // const isAuthenticated = useAuth(); // Use the hook to check auth status
@@ -17,6 +18,7 @@ function App() {
         <Route exact path="/login" element={<Login />} />
         {/* Redirect /logout to /login for simplicity, handle logout logic elsewhere */}
         <Route exact path="/logout" element={<Navigate to="/login" replace />} />
+
       </Routes>
     </div>
   );

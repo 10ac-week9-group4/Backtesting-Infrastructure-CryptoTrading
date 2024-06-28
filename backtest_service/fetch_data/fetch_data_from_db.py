@@ -1,6 +1,6 @@
 # Import necessary modules
 # from database_models import AssetData  # Assuming this is your model
-from save_asset_and_stock import get_asset_data  # Function to fetch data from DB
+from backtest_service.scripts.save_asset_and_stock import get_asset_data  # Function to fetch data from DB
 import pandas as pd
 
 # New function to fetch data from the database and convert to DataFrame

@@ -76,7 +76,7 @@ async def consume_and_forward_messages(topic_names):
   await asyncio.gather(*tasks)
 
 async def main():
-  topic_names = ['stock_data', 'user_registrations', 'backtest_results', 'scenes_topic']
+  topic_names = ['stock_data', 'user_registrations', 'scenes_topic']
   await consume_and_forward_messages(topic_names)
 
 if __name__ == "__main__":
