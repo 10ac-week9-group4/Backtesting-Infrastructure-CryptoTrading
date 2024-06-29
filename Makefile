@@ -9,9 +9,7 @@ POSTGRES_USER := postgres
 start:
 	make build-base-image
 	make build-all
-	export PYTHONPATH=$PYTHONPATH:$(pwd)
 	make up
-	make setup-trading-db
 	alembic upgrade head
 	make save-strategies
 

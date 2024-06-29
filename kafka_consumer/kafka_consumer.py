@@ -58,7 +58,7 @@ async def forward_message_to_service(topic, message, max_retries=5, retry_delay=
       message_json = json.dumps(message)
       async with websockets.connect(endpoint) as ws:
         await ws.send(message_json)
-      print(f"Successfully forwarded message to {endpoint}")
+      print(f"Successfully forwarded message :{message_json} to {endpoint}")
       return  # Exit function after successful sending
     except Exception as e:
       print(f"Attempt {attempt + 1}: Failed to forward message to {endpoint}, Error: {e}")

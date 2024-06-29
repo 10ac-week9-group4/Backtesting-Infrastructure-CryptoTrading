@@ -41,7 +41,7 @@ def save_scene(scene, strategy_id, session):
     new_scene = Dim_Scene(
       SceneKey=scene_key,
       StrategyID=strategy_id,
-      Symbol=scene["symbol"],
+      Symbol=scene["asset"],
       Cash=scene["cash"],
       Commission=scene["commission"],
       StartDate=scene["start_date"],

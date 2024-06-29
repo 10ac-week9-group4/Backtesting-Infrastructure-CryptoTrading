@@ -36,7 +36,7 @@ def add_user_to_database(user_data: dict, db: Session):
     
     # If the user does not exist, proceed to create a new user instance
     new_user = Dim_Users(
-        FistName=user_data['first_name'],
+        FirstName=user_data['first_name'],
         LastName=user_data['last_name'],
         UserName=user_data['username'], 
         Email=user_data['email'], 

@@ -7,13 +7,34 @@ import BactestResults from "./BacktestResults";
 const strategies = [
 	{
     "name": "SMACrossOver",
+		"full_name": "SMA Crossover",
     "parameters": {
       "pfast": "Short Window",
       "pslow": "Long Window",
       // "interval": "interval"
     },
     "description": "This strategy uses a simple moving average crossover to determine when to buy and sell assets. It uses two moving averages, a short window and a long window. When the short window crosses above the long window, it generates a buy signal. When the short window crosses below the long window, it generates a sell signal."
-  }
+  },
+	{
+		"name": "MACDCrossover",
+		"full_name": "MACD Crossover",
+		"parameters": {
+			"fastperiod": "Short Window",
+			"slowperiod": "Long Window",
+			"signalperiod": "Signal Window"
+		},
+		"description": "This strategy uses a MACD crossover to determine when to buy and sell assets. It uses three moving averages, a short window, a long window, and a signal window. When the MACD line crosses above the signal line, it generates a buy signal. When the MACD line crosses below the signal line, it generates a sell signal."
+	},
+	{
+		"name": "BollingerBands",
+
+		"parameters": {
+			"period": "Window",
+			"devfactor": "Standard Deviation"
+		},
+		"description": "This strategy uses Bollinger Bands to determine when to buy and sell assets. It uses a moving average and a standard deviation to calculate the upper and lower bands. When the price crosses below the lower band, it generates a buy signal. When the price crosses above the upper band, it generates a sell signal."
+	}
+
 ]
 
 const renderParameterFields = (strategy) => {
@@ -47,10 +68,12 @@ const renderParameterFields = (strategy) => {
 export default function BacktestForm() {
 	const [scene_key, setSceneKey] = useState("")
 	const [message, setMessage] = useState("")
+	const [strategy, setStrategy] = useState(strategies[0].name)
 	const [resultsResponse, setResultsResponse] = useState({})
 	const navigate = useNavigate()
 	const handleSubmit = async (e) => {
 		e.preventDefault()
+		setResultsResponse({})
 		// get form data using FormData
 		const formData = new FormData(e.target)
 		const data = {}
@@ -73,7 +96,7 @@ export default function BacktestForm() {
 	
 
 		const backtestData = {
-			symbol: data.symbol,
+			asset: data.symbol,
 			strategy: strategies[0].name,
 			parameters: parameters,
 			start_date: data.start_date,
@@ -81,30 +104,6 @@ export default function BacktestForm() {
 			cash: data.cash,
 			commission: data.commission
 		}
-
-
-		// console.log(backtestData)
-
-		// convert the data to string
-		// const newD = JSON.stringify(backtestData)
-		// console.log(newD)
-
-		// const dummy = { 
-		// 	"symbol": "GOOGL",
-		// 	"start_date": "2022-12-19", 
-		// 	"end_date": "2023-02-19", 
-		// 	"cash": "100000", 
-		// 	"commission": "0.001", 
-		// 	"strategy": "SMACrossOver", 
-		// 	"parameters": { 
-		// 			"pfast": "10", 
-		// 			"pslow": "30" 
-		// 	} 
-
-			
-		// }
-		// console.log(dummy)
-	
 
 
 		// send the data to the backend
@@ -156,6 +155,7 @@ export default function BacktestForm() {
 			console.error(error)
 		}
 	}
+	console.log(strategy)
 
 	useEffect(() => {
 		fetch_assets()
@@ -212,11 +212,14 @@ export default function BacktestForm() {
 										id="country"
 										name="country"
 										autoComplete="country-name"
+										onChange={(e) => setStrategy(e.target.value) }
 										className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
 									>
-										<option>United States</option>
-										<option>Canada</option>
-										<option>Mexico</option>
+										{
+											strategies.map(strategy => (
+												<option key={strategy.name} value={strategy.name}>{strategy.name}</option>
+											))
+										}
 									</select>
 								</div>
 							</div>
@@ -230,7 +233,7 @@ export default function BacktestForm() {
 								</label>
 								<div className="mt-2">
 									<input
-										type="text"
+										type="date"
 										name="start_date"
 										id="start_date"
 										autoComplete="address-level2"
@@ -294,7 +297,7 @@ export default function BacktestForm() {
 							</div>
 
               {
-								renderParameterFields(strategies[0])
+								renderParameterFields(strategies.find(s => s.name === strategy))
 							}
 
 						</div>
@@ -313,28 +316,34 @@ export default function BacktestForm() {
 							Run Backtests
 						</button>
 					</div>
-					{
-						scene_key && (
-						<div className="px-4 py-4 sm:p-8">
-						<p className="text-sm leading-6 text-gray-600">
-							{message}
-						</p>
-						<button
+					
+					
+				</form>
+				
+
+
+				<div >
+				{
+						scene_key && !resultsResponse.backtest_results && (
+						<div className="px-4 sm:p-3 flex">
+							<button
 							onClick={handleCheckResults}
-							className="mt-2 rounded-md bg-teal-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+							className="rounded-md bg-teal-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
 						>
 							Check Results
 						</button>
+						<p className="pl-2 mt-1 text-sm leading-6 text-gray-600">
+							{message}
+						</p>
+						
 					</div>
 						)
 					}
-					
-				</form>
+					<BactestResults scene_key={scene_key} resultsResponse={resultsResponse} />
 
-
-
-				<BactestResults scene_key={scene_key} resultsResponse={resultsResponse} />
+				</div>
 			</div>
+			
 
 			
 		</div>

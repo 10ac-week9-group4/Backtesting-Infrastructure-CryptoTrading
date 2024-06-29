@@ -324,7 +324,7 @@ services:
   database-service:
     <<: *common-service
     build: ./database_service
-    command: uvicorn database_service:app --host 0.0.0.0 --reload --port 8001
+    command: uvicorn database_service.database_service:app --host 0.0.0.0 --reload --port 8001
     ports:
       - 8001:8001
     volumes:
@@ -350,7 +350,7 @@ services:
     restart: "no"  # Ensure it only runs once
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      TOPIC_NAMES: "stock_data, backtest_results, user_registrations, scenes_topic"
+      TOPIC_NAMES: "stock_data, backtest_results, user_registrations, scenes_topic, bt_results"
       PARTITIONS: 1
       REPLICATION_FACTOR: 1
 

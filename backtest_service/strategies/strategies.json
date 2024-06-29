@@ -2,29 +2,27 @@
   {
     "name": "SMACrossOver",
     "parameters": {
-      "short_window": 20,
-      "long_window": 50,
-      "interval": "1d"
+      "pfast": 20,
+      "pslow": 50
     },
     "description": "This strategy uses a simple moving average crossover to determine when to buy and sell assets. It uses two moving averages, a short window and a long window. When the short window crosses above the long window, it generates a buy signal. When the short window crosses below the long window, it generates a sell signal."
   },
+	{
+		"name": "BollingerBands",
+		
+		"parameters": {
+			"period": "Window",
+			"devfactor": "Standard Deviation"
+		},
+    "description": "This strategy uses Bollinger Bands to determine when to buy and sell assets. It uses a moving average and a standard deviation to calculate the upper and lower bands. When the price crosses below the lower band, it generates a buy signal. When the price crosses above the upper band, it generates a sell signal."
+
+	},
   {
-    "name": "RSI",
+    "name": "MACDCrossover",
     "parameters": {
-      "rsi_period": 14,
-      "overbought_threshold": 70,
-      "oversold_threshold": 30,
-      "interval": "1d"
-    },
-    "description": "This strategy uses the Relative Strength Index (RSI) to determine when to buy and sell assets. The RSI is a momentum oscillator that measures the speed and change of price movements. It ranges from 0 to 100 and is typically used to identify overbought and oversold conditions in the market. When the RSI is above the overbought threshold, it generates a sell signal. When the RSI is below the oversold threshold, it generates a buy signal."
-  },
-  {
-    "name": "MACD",
-    "parameters": {
-      "macd_short_period": 12,
-      "macd_long_period": 26,
-      "macd_signal_period": 9,
-      "interval": "1d"
+      "fastperiod": 12,
+      "slowperiod": 26,
+      "signalperiod": 9
     },
     "description": "This strategy uses the Moving Average Convergence Divergence (MACD) to determine when to buy and sell assets. The MACD is a trend-following momentum indicator that shows the relationship between two moving averages of an asset's price. When the MACD line crosses above the signal line, it generates a buy signal. When the MACD line crosses below the signal line, it generates a sell signal."
   }

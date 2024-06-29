@@ -28,18 +28,20 @@ import {
 } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 
+
+
 const navigation = [
   { name: 'Dashboard', href: '#', icon: HomeIcon, current: false },
-  { name: 'Team', href: '#', icon: UsersIcon, current: false },
-  { name: 'Projects', href: '#', icon: FolderIcon, current: false },
-  { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
-  { name: 'Documents', href: '#', icon: DocumentDuplicateIcon, current: false },
-  { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
+  // { name: 'Team', href: '#', icon: UsersIcon, current: false },
+  { name: 'Results', href: '#', icon: FolderIcon, current: false },
+  // { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
+  // { name: 'Documents', href: '#', icon: DocumentDuplicateIcon, current: false },
+  { name: 'Portfolio', href: '#', icon: ChartPieIcon, current: false },
 ]
 const teams = [
-  { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-  { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-  { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
+  { id: 1, name: 'Results 1', href: '#', initial: '1', current: false },
+  { id: 2, name: 'Google SMA', href: '#', initial: '2', current: false },
+  { id: 3, name: 'Results 3', href: '#', initial: '3', current: false },
 ]
 const userNavigation = [
   { name: 'Your profile', href: '#' },
@@ -174,7 +176,7 @@ export default function Dashboard() {
                           </ul>
                         </li>
                         <li>
-                          <div className="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
+                          <div className="text-xs font-semibold leading-6 text-gray-400">Your results</div>
                           <ul role="list" className="-mx-2 mt-2 space-y-1">
                             {teams.map((team) => (
                               <li key={team.name}>
@@ -264,7 +266,7 @@ export default function Dashboard() {
                   </ul>
                 </li>
                 <li>
-                  <div className="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
+                  <div className="text-xs font-semibold leading-6 text-gray-400">Latest results</div>
                   <ul role="list" className="-mx-2 mt-2 space-y-1">
                     {teams.map((team) => (
                       <li key={team.name}>

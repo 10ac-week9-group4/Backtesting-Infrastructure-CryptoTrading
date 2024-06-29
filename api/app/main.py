@@ -181,9 +181,11 @@ from datetime import date, datetime
 from pydantic import BaseModel, Field
 from typing import Dict, Any
 from decimal import Decimal
+from typing import Optional
+
 
 class Parameters(BaseModel):
-    symbol: str = Field(..., example="AAPL")
+    asset: str = Field(..., example="AAPL")
     start_date: date = Field(..., example="2022-12-19")
     end_date: date = Field(..., example="2023-02-19")
     cash: Decimal = Field(gt=Decimal('0'), example=Decimal('100000'))
@@ -196,7 +198,7 @@ class Parameters(BaseModel):
         serializable_dict = {k: (str(v) if isinstance(v, Decimal) else v) for k, v in self.dict().items()}
         # Convert date fields to isoformat
         serializable_dict["start_date"] = self.start_date.isoformat()
-        print("SERIALIZABLE DICT", serializable_dict)
+        # print("SERIALIZABLE DICT", serializable_dict)
         serializable_dict["end_date"] = self.end_date.isoformat()
         return serializable_dict
 
@@ -205,7 +207,6 @@ class Parameters(BaseModel):
 async def backtest(parameters: Parameters):
     try:
         parameters_json_serializable = parameters.to_json_serializable_dict()
-        print("GOT HERE")
         scene_key = generate_scene_key(parameters_json_serializable)
         # add scene_key to parameters
         parameters_json_serializable["scene_key"] = scene_key
@@ -263,6 +264,8 @@ def consume_messages(topic, group_id, target_id):
                 
                 # Check if message_data is indeed a dictionary
                 print("Type of message_data:", type(message_data))
+                print("TARGET ID", target_id)
+                print("CURRENT ID", message_data.get('scene_key'))
                 if not isinstance(message_data, dict):
                     raise ValueError("message_data is not a dictionary")
                 if message_data.get('scene_key') == target_id:
