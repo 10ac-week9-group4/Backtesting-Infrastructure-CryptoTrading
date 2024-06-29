@@ -42,11 +42,12 @@ if not success:
     exit(1)
 
 # Function to send messages
-def send_message_to_kafka(topic_name, message, key=None):
+def send_message_to_kafka(topic_name, message, key=None, flush=True):
     """Sends a JSON-serialized message to the specified Kafka topic."""
     try:
         producer.produce(topic_name, key=key, value=json.dumps(message).encode('utf-8'))
-        producer.flush()  # Ensure message delivery
+        if flush:
+            producer.flush() # Ensure message delivery
         logger.info(f"Message sent to Kafka topic '{topic_name}': {message}")
         return True
     except Exception as e:

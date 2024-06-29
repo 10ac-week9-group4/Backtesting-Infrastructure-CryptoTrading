@@ -1,4 +1,4 @@
-.PHONY: run-dev down clean build up build-pipeline run test test_db create_trading_database build-base-image build-base-image-restart d-% up-% run-% logs-% build-% bash-% save-strategies create-superuser drop-user create-db drop-db init-db build-all
+.PHONY: run-dev down clean build up build-pipeline run test test_db create_trading_database build-base-image build-base-image-restart d-% up-% run-% logs-% build-% bash-% save-strategies create-superuser drop-user create-db drop-db init-db build-all setup-trading-db start
 
 # Makefile for managing PostgreSQL users in Docker
 
@@ -9,7 +9,6 @@ POSTGRES_USER := postgres
 start:
 	make build-base-image
 	make build-all
-	export PYTHONPATH=$PYTHONPATH:$(pwd)
 	make up
 	alembic upgrade head
 	make save-strategies
@@ -18,9 +17,31 @@ start:
 save-strategies:
 	python backtest_service/scripts/save_strategies.py
 
+setup-trading-db:
+	make create-superuser
+	make create-db
+	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d trading_data -c "\
+	make clean-trading-data-tables;"
+
+clean-trading-data-tables:
+	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d trading_data -c "\
+	DO \
+	$$ \
+	DECLARE \
+			stmt TEXT; \
+	BEGIN \
+			FOR stmt IN \
+					SELECT 'DROP TABLE IF EXISTS ' || quote_ident(table_schema) || '.' || quote_ident(table_name) || ' CASCADE;' \
+					FROM information_schema.tables \
+					WHERE table_schema = 'public' \
+			LOOP \
+					EXECUTE stmt; \
+			END LOOP; \
+	END \
+	$$;"  # End of SQL command
+
 create-superuser:
-	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_MAIN_USER) -c "\
-	CREATE USER postgres WITH SUPERUSER CREATEDB CREATEROLE LOGIN PASSWORD 'billna1';"
+	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_MAIN_USER) -f create_superuser.sql
 
 drop-user:
 	docker compose exec -it $(POSTGRES_CONTAINER) psql -U $(POSTGRES_MAIN_USER) -c "DROP USER postgres;"

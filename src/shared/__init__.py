@@ -1,2 +1,2 @@
 from .kafka_consumer_util import create_kafka_consumer, consume_messages, create_and_consume_messages
-from .kafka_producer import create_kafka_producer, send_message_to_kafka
+from .kafka_producer import create_kafka_producer, send_message_to_kafka, producer

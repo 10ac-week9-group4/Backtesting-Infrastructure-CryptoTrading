@@ -1,15 +1,12 @@
 
 [
   {
-    "strategy_name": "SMA Crossover",
-    "date_range": {
-      "start_date": "2022-01-01",
-      "end_date": "2023-12-31"
+    "name": "SMACrossOver",
+    "parameters": {
+      "short_window": 20,
+      "long_window": 50,
+      "interval": "1d"
     },
-    "indicator": "sma_crossover",
-    "indicator_params_range": {
-      "pfast": [10],
-      "pslow": [200]
-    }
+    "description": "This strategy uses a simple moving average crossover to determine when to buy and sell assets. It uses two moving averages, a short window and a long window. When the short window crosses above the long window, it generates a buy signal. When the short window crosses below the long window, it generates a sell signal."
   }
 ]

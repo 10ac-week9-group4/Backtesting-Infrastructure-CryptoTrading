@@ -33,12 +33,26 @@ def execute_single_backtest(scene, scene_id, session=None):
   
   # Check if results for this SceneID already exist
   existing_results = get_existing_backtest_result(scene_id, session)
+  
   if existing_results:
+    print("EXISTING RESULTS: ", existing_results)
     results_with_id = existing_results.copy()
     results_with_id['SceneID'] = scene_id
   else:
+    print("Running backtest...")
     # If no existing results, run the backtest
-    backtest_results = prepare_and_run_backtest(strategy_params=scene["parameters"])
+    backtest_results = prepare_and_run_backtest(
+      asset=scene["asset"],
+      strategy_name=scene["strategy"],
+      # interval=scene["interval"],
+      start_date=scene["start_date"],
+      end_date=scene["end_date"],
+      cash=float(scene["cash"]),  # Convert cash from string to float
+      commission=float(scene["commission"]),  # Convert commission from string to float
+
+      strategy_params=scene["parameters"]
+    )
+    print("BACKTEST RESULTS: ", backtest_results)
     results_with_id = backtest_results.copy()
     results_with_id['SceneID'] = scene_id
     # Save the new backtest result here if needed
@@ -53,6 +67,13 @@ def save_single_backtest_result(scene_id, backtest_result, session=None):
 
   if existing_result:
     return # Do not save the result if it already exists
+  
+  if backtest_result['win_trade'] == 'Undefined':
+    backtest_result['win_trade'] = None  # Convert to None, which will be inserted as NULL in the database
+
+  if backtest_result['loss_trade'] == 'Undefined':
+      backtest_result['loss_trade'] = None  # Convert to None, which will be inserted as NULL in the database
+
   backtest = Fact_Backtests(
     SceneID=scene_id,
     MaxDrawdown=backtest_result['max_drawdown'],

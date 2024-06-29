@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from database_models import init_db
 from shared.kafka_producer import send_message_to_kafka
 from backtest_service.bt_utils import get_strategy_by_name, get_scene_by_key, save_scene, get_existing_backtest_result, execute_single_backtest, save_single_backtest_result
-
+import decimal
 # Initialize FastAPI app
 app = FastAPI()
 
@@ -86,11 +86,31 @@ def handle_scene(scene_message: dict, session):
             print("Results: ", results)
             save_single_backtest_result(scene.SceneID, results, session)
 
+            # add scene_key to results
+            results["scene_key"] = scene_message["scene_key"]
+
             # Convert results to JSON, handling Decimal and datetime objects
-            results_json = json.dumps(results, default=serialize_decimal)
+            # Assuming serialize_decimal is a function that correctly serializes Decimal and datetime objects
+            def serialize_decimal(obj):
+                if isinstance(obj, decimal.Decimal):
+                    return float(obj)
+                elif isinstance(obj, datetime.datetime):
+                    return obj.isoformat()
+                raise TypeError("Type not serializable")
+
+            # Filter results to include only the necessary fields
+            necessary_fields = ["max_drawdown", "sharpe_ratio", "return", "win_trade", "loss_trade", "total_trade", "start_portfolio", "final_portfolio", "SceneID", "scene_key"]
+            filtered_results = {key: results[key] for key in necessary_fields}
+
+            # Convert filtered results to JSON
+            results_json = json.dumps(filtered_results, default=serialize_decimal)
+            print(results_json)
+            res = json.loads(results_json)
+            print('RES TYPE', type(results_json))
+
 
             # Send the results to Kafka
-            isSuccess = send_message_to_kafka("backtest_results", results_json)
+            isSuccess = send_message_to_kafka("bt_results", res)
             if isSuccess:
                 logger.info("Backtest results sent to Kafka.")
         except SQLAlchemyError as e:

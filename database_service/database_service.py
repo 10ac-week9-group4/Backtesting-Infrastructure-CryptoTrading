@@ -25,13 +25,28 @@ db_session = init_db()
 
 def add_user_to_database(user_data: dict, db: Session):
     """
-    Add a new user to the database.
+    Add a new user to the database if they do not already exist.
     """
-    # Create a new user instance
-    new_user = Dim_Users(UserName=user_data['username'], Email=user_data['email'], PasswordHash=user_data['hashed_password'])
+    # Check if the user already exists in the database
+    existing_user = db.query(Dim_Users).filter(Dim_Users.Email == user_data['email']).first()
+    print("EXISTING USER: ", existing_user)
+    if existing_user:
+        # User already exists, handle accordingly (e.g., return existing user or raise an exception)
+        return existing_user  # or raise Exception("User already exists.")
+    
+    # If the user does not exist, proceed to create a new user instance
+    new_user = Dim_Users(
+        FirstName=user_data['first_name'],
+        LastName=user_data['last_name'],
+        UserName=user_data['username'], 
+        Email=user_data['email'], 
+        PasswordHash=user_data['hashed_password']
+    )
+    
     # Add the new user to the session and commit
     db.add(new_user)
     db.commit()
+    
     # Refresh to get the new user instance from the database
     db.refresh(new_user)
     return new_user

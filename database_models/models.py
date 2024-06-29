@@ -34,6 +34,8 @@ class Dim_Date(Base):
 class Dim_Users(Base):
   __tablename__ = 'dim_users'
   UserID = Column(Integer, primary_key=True, autoincrement=True)
+  FirstName = Column(String(100))
+  LastName = Column(String(100))
   UserName = Column(String(100))
   Email = Column(String(100))
   PasswordHash = Column(String(255))
