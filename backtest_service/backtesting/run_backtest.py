@@ -146,32 +146,34 @@ def prepare_cerebro(asset,strategy,interval,start_date:str,end_date:str=datetime
     cerebro.addanalyzer(TradeAnalyzer)
     return cerebro
 
-def run_test(cerebro:bt.Cerebro):
-
-    result={}
+def run_test(cerebro: bt.Cerebro):
+    result = {}
 
     cerebro.addanalyzer(SharpeRatio, _name='sharpe')
     cerebro.addanalyzer(Returns, _name='returns')
     cerebro.addanalyzer(DrawDown, _name='draw')
     cerebro.addanalyzer(TradeAnalyzer, _name='trade')
-    
+
     starting = cerebro.broker.getvalue()
-    res=cerebro.run()
-    final=cerebro.broker.getvalue()
+    res = cerebro.run()
+    final = cerebro.broker.getvalue()
 
     thestrat = res[0]
 
-    sharpe=thestrat.analyzers.sharpe.get_analysis()
-    return_val=thestrat.analyzers.returns.get_analysis()
-    drawdown=thestrat.analyzers.draw.get_analysis()
-    trade=thestrat.analyzers.trade.get_analysis()
+    sharpe = thestrat.analyzers.sharpe.get_analysis()
+    return_val = thestrat.analyzers.returns.get_analysis()
+    drawdown = thestrat.analyzers.draw.get_analysis()
+    trade = thestrat.analyzers.trade.get_analysis()
 
-    result["sharpe_ratio"]=sharpe['sharperatio']
-    result["return"]=return_val['rtot']
+    result["sharpe_ratio"] = sharpe['sharperatio']
+    result["return"] = return_val['rtot']
     result['max_drawdown'] = drawdown['max']['drawdown']
-    result['win_trade'] = trade.get('won', {}).get('total', 'Undefined')
-    result['loss_trade'] = trade.get('lost', {}).get('total', 'Undefined')
-    result['total_trade'] = trade.get('total', {}).get('total', 'Undefined')
+    result['win_trade'] = trade.get('won', {}).get('total', 0)
+    result['loss_trade'] = trade.get('lost', {}).get('total', 0)
+    
+    # Calculate total closed trades explicitly
+    result['total_trade'] = result['win_trade'] + result['loss_trade'] 
+
     result['start_portfolio'] = starting
     result['final_portfolio'] = final
 
