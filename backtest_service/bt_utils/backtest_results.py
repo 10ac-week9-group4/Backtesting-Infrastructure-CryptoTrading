@@ -1,6 +1,14 @@
 from datetime import datetime
 from database_models import Fact_Backtests, init_db
 from backtest_service.backtesting import prepare_and_run_backtest
+import mlflow
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+mlflow.set_tracking_uri(DATABASE_URL)
 
 def get_existing_backtest_result(scene_id, session=None):
   if session is None:
@@ -26,38 +34,52 @@ def get_existing_backtest_result(scene_id, session=None):
     return None
   
 def execute_single_backtest(scene, scene_id, session=None):
-  if session is None:
-    session = init_db()
-  # Generate SceneID for the combination
-  # scene_key = generate_scene_key(combination, asset, start_date, end_date)
-  
-  # Check if results for this SceneID already exist
-  existing_results = get_existing_backtest_result(scene_id, session)
-  
-  if existing_results:
-    print("EXISTING RESULTS: ", existing_results)
-    results_with_id = existing_results.copy()
-    results_with_id['SceneID'] = scene_id
-  else:
-    print("Running backtest...")
-    # If no existing results, run the backtest
-    backtest_results = prepare_and_run_backtest(
-      asset=scene["asset"],
-      strategy_name=scene["strategy"],
-      # interval=scene["interval"],
-      start_date=scene["start_date"],
-      end_date=scene["end_date"],
-      cash=float(scene["cash"]),  # Convert cash from string to float
-      commission=float(scene["commission"]),  # Convert commission from string to float
+  with mlflow.start_run():
+    if session is None:
+      session = init_db()
 
-      strategy_params=scene["parameters"]
-    )
-    print("BACKTEST RESULTS: ", backtest_results)
-    results_with_id = backtest_results.copy()
-    results_with_id['SceneID'] = scene_id
-    # Save the new backtest result here if needed
+    # Log parameters
+    mlflow.log_params({
+      "asset": scene["asset"],
+      "strategy_name": scene["strategy"],
+      "start_date": scene["start_date"],
+      "end_date": scene["end_date"],
+      "cash": scene["cash"],
+      "commission": scene["commission"]
+    })
+
+    existing_results = get_existing_backtest_result(scene_id, session)
   
-  return results_with_id
+    if existing_results:
+      print("EXISTING RESULTS: ", existing_results)
+      results_with_id = existing_results.copy()
+      results_with_id['SceneID'] = scene_id
+    else:
+      print("Running backtest...")
+      backtest_results = prepare_and_run_backtest(
+        asset=scene["asset"],
+        strategy_name=scene["strategy"],
+        start_date=scene["start_date"],
+        end_date=scene["end_date"],
+        cash=float(scene["cash"]),
+        commission=float(scene["commission"]),
+        strategy_params=scene["parameters"]
+      )
+      print("BACKTEST RESULTS: ", backtest_results)
+      results_with_id = backtest_results.copy()
+      results_with_id['SceneID'] = scene_id
+
+      # Log metrics
+      mlflow.log_metrics({
+        "max_drawdown": backtest_results['max_drawdown'],
+        "sharpe_ratio": backtest_results['sharpe_ratio'],
+        "return": backtest_results['return']
+      })
+
+      # Optional: Log artifacts (e.g., plots)
+      # mlflow.log_artifact("path/to/plot.png")
+
+    return results_with_id
 
 def save_single_backtest_result(scene_id, backtest_result, session=None):
   if session is None:

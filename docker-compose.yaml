@@ -341,6 +341,22 @@ services:
       - ./backtest_service:/app/backtest_service/
     ports:
       - 8002:8002
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    depends_on:
+      - mlflow
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow
+    environment:
+      MLFLOW_BACKEND_STORE_URI: postgresql://postgres:billna1@postgres:5432/trading_data
+      MLFLOW_ARTIFACT_ROOT: /mlflow/artifacts
+    volumes:
+      - mlflow-artifacts:/mlflow/artifacts
+    ports:
+      - 5000:5000
+    depends_on:
+      - postgres
 
   topic_creator:
     image: base-image-gold:latest
@@ -358,3 +374,4 @@ services:
 
 volumes:
   postgres-db-volume:
+  mlflow-artifacts:
