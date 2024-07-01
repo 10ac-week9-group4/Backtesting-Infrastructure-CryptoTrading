@@ -7,5 +7,5 @@ WORKDIR /app
 COPY . /app/backtest_service
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r backtest_service/requirements.txt
 

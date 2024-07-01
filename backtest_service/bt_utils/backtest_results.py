@@ -7,6 +7,7 @@ import os
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
+print("DATABASE_URL: ", DATABASE_URL)
 
 mlflow.set_tracking_uri(DATABASE_URL)
 
@@ -72,7 +73,6 @@ def execute_single_backtest(scene, scene_id, session=None):
       # Log metrics
       mlflow.log_metrics({
         "max_drawdown": backtest_results['max_drawdown'],
-        "sharpe_ratio": backtest_results['sharpe_ratio'],
         "return": backtest_results['return']
       })
 

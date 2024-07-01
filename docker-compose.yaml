@@ -59,6 +59,8 @@ x-common-service:
     POSTGRES_PASSWORD: postgres
     POSTGRES_PORT: 5432
     DATABASE_URL: postgresql://postgres:billna1@postgres:5432/trading_data
+    MLFLOW_TRACKING_URI: http://mlflow:5000
+    MLFLOW_ARTIFACT_ROOT: /mlflow/artifacts
 
 services:
   postgres:
@@ -339,20 +341,27 @@ services:
     command: uvicorn backtest_service.backtest_service:app --host 0.0.0.0 --reload --port 8002
     volumes:
       - ./backtest_service:/app/backtest_service/
+      - ./mlruns:/app/mlruns  # Mount the mlruns directory
     ports:
       - 8002:8002
-    environment:
-      MLFLOW_TRACKING_URI: http://mlflow:5000
     depends_on:
       - mlflow
 
   mlflow:
     image: ghcr.io/mlflow/mlflow
+    command: >
+      bash -c "
+        pip install psycopg2-binary && \
+        mlflow server --host 0.0.0.0 --port 5000 \
+        --default-artifact-root /mlflow/artifacts \
+        --backend-store-uri postgresql://postgres:billna1@postgres:5432/trading_data
+      "    
     environment:
       MLFLOW_BACKEND_STORE_URI: postgresql://postgres:billna1@postgres:5432/trading_data
       MLFLOW_ARTIFACT_ROOT: /mlflow/artifacts
     volumes:
       - mlflow-artifacts:/mlflow/artifacts
+      - ./mlruns:/mlflow/mlruns  # Mount the mlruns directory
     ports:
       - 5000:5000
     depends_on:
