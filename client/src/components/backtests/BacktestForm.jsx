@@ -88,7 +88,14 @@ export default function BacktestForm() {
 		const parameters = {}
 		// and convert the parameter values to integers
 		for (const [key, value] of Object.entries(data)) {
-			if (key !== "symbol" && key !== "country" && key !== "start_date" && key !== "end_date" && key !== "cash" && key !== "commission") {
+			if (key !== "symbol" && 
+				key !== "country" && 
+				key !== "start_date" && 
+				key !== "end_date" && 
+				key !== "cash" && 
+				key !== "commission" &&
+				key !== "strategy"
+			) {
 				parameters[key] = parseInt(value)
 			}
 		}
@@ -97,7 +104,7 @@ export default function BacktestForm() {
 
 		const backtestData = {
 			asset: data.symbol,
-			strategy: strategies[0].name,
+			strategy: data.strategy,
 			parameters: parameters,
 			start_date: data.start_date,
 			end_date: data.end_date,
@@ -202,16 +209,16 @@ export default function BacktestForm() {
 
 							<div className="sm:col-span-3">
 								<label
-									htmlFor="country"
+									htmlFor="strategy"
 									className="block text-sm font-medium leading-6 text-gray-900"
 								>
 									Strategy
 								</label>
 								<div className="mt-2">
 									<select
-										id="country"
-										name="country"
-										autoComplete="country-name"
+										id="strategy"
+										name="strategy"
+										autoComplete="strategy"
 										onChange={(e) => setStrategy(e.target.value) }
 										className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
 									>
@@ -233,7 +240,7 @@ export default function BacktestForm() {
 								</label>
 								<div className="mt-2">
 									<input
-										type="date"
+										type="text"
 										name="start_date"
 										id="start_date"
 										autoComplete="address-level2"
