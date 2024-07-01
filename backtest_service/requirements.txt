@@ -1,3 +1,4 @@
 backtrader
 backtrader[plotting]
 matplotlib
+mlflow

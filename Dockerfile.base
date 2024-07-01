@@ -1,5 +1,5 @@
-# Base Image for Your Project
-FROM python:3.9-alpine
+# Base Image
+FROM python:3.8-slim-buster 
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 
@@ -20,21 +20,29 @@ COPY ./src/scripts $APP_HOME/scripts
 # Copy the database models
 COPY ./database_models $APP_HOME/database_models
 
-# Install system-level dependencies
-RUN apk add --no-cache gcc musl-dev linux-headers bash  # For compiling dependencies
+# Install system-level dependencies (adjusted for Debian)
+# libpq-dev is for psycopg2 (PostgreSQL)
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3-dev \
+    libpq-dev && rm -rf /var/lib/apt/lists/*  # Clean up
 
 # Install entr 
-RUN apk add --update entr
+RUN apt-get update && apt-get install -y entr
 
-# Install librdkafka development package
-RUN apk add librdkafka-dev 
+# Install librdkafka development package (adjusted for Debian)
+RUN apt-get update && apt-get install -y librdkafka-dev
 
 # Install common Python libraries
 RUN pip install -r requirements-base.txt --no-cache-dir 
 
-# (Optional) Create a non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# (Optional) Create a group and user to run the application
+# Create a group 'appgroup'
+RUN addgroup --system appgroup
 
+# Create a user 'appuser' and add to 'appgroup'
+RUN adduser --system --ingroup appgroup appuser
 # Set the user to the newly created user
 USER appuser 
 
